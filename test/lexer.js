@@ -74,4 +74,25 @@ describe("tokenize()", () => {
       new ReferenceToken("skill name"),
     ]);
   });
+
+  it("should ignore whitespace around tokens", () => {
+    assert.deepStrictEqual(tokenize(" 1 "), [new NumberToken(1)]);
+    assert.deepStrictEqual(tokenize("  +    "), [new OperatorToken("+")]);
+    assert.deepStrictEqual(tokenize("  ==  "), [new OperatorToken("==")]);
+    assert.deepStrictEqual(tokenize("  (  )  "), [
+      new OpeningParenthesisToken(),
+      new ClosingParenthesisToken(),
+    ]);
+    assert.deepStrictEqual(tokenize(" lvl > 2 ? lvl + 3 : 0 "), [
+      new IdentifierToken("lvl"),
+      new OperatorToken(">"),
+      new NumberToken(2),
+      new QuestionMarkToken(),
+      new IdentifierToken("lvl"),
+      new OperatorToken("+"),
+      new NumberToken(3),
+      new ColonToken(),
+      new NumberToken(0),
+    ]);
+  });
 });
