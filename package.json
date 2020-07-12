@@ -20,5 +20,8 @@
   "bugs": {
     "url": "https://github.com/pastelmind/d2calc/issues"
   },
-  "homepage": "https://github.com/pastelmind/d2calc#readme"
+  "homepage": "https://github.com/pastelmind/d2calc#readme",
+  "devDependencies": {
+    "mocha": "^8.0.1"
+  }
 }
