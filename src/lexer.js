@@ -1,5 +1,18 @@
 "use strict";
 
+/**
+ * Tokenizes the given string.
+ *
+ * @param {string} text
+ * @return {Token[]}
+ */
+function tokenize(text) {
+  /** @type {Token[]} */
+  const tokens = [];
+
+  return tokens;
+}
+
 /** Base class for tokens. */
 class Token {}
 
@@ -57,16 +70,15 @@ class QuestionMarkToken extends Token {}
 /** Token used by conditional expressions */
 class ColonToken extends Token {}
 
-module.exports = {
-  Token,
-  NumberToken,
-  IdentifierToken,
-  ReferenceToken,
-  OperatorToken,
-  OpeningParenthesisToken,
-  ClosingParenthesisToken,
-  DotToken,
-  CommaToken,
-  QuestionMarkToken,
-  ColonToken,
-};
+module.exports = tokenize;
+module.exports.Token = Token;
+module.exports.NumberToken = NumberToken;
+module.exports.IdentifierToken = IdentifierToken;
+module.exports.ReferenceToken = ReferenceToken;
+module.exports.OperatorToken = OperatorToken;
+module.exports.OpeningParenthesisToken = OpeningParenthesisToken;
+module.exports.ClosingParenthesisToken = ClosingParenthesisToken;
+module.exports.DotToken = DotToken;
+module.exports.CommaToken = CommaToken;
+module.exports.QuestionMarkToken = QuestionMarkToken;
+module.exports.ColonToken = ColonToken;
