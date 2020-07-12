@@ -1,5 +1,15 @@
 "use strict";
 
+/**
+ * Parses the given string.
+ *
+ * @param {string} text
+ * @return {AstExpression}
+ */
+function parse(text) {
+  throw new Error(`Cannot parse string: ${text}`);
+}
+
 /** Base class for AST expression nodes */
 class AstExpression {}
 
@@ -92,3 +102,13 @@ class AstReferenceFunctionCall extends AstExpression {
     this.identifier2 = identifier2;
   }
 }
+
+module.exports = parse;
+module.exports.AstExpression = AstExpression;
+module.exports.AstNumber = AstNumber;
+module.exports.AstBinaryOp = AstBinaryOp;
+module.exports.AstUnaryOp = AstUnaryOp;
+module.exports.AstConditional = AstConditional;
+module.exports.AstIdentifier = AstIdentifier;
+module.exports.AstFunctionCall = AstFunctionCall;
+module.exports.AstReferenceFunctionCall = AstReferenceFunctionCall;
