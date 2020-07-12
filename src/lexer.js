@@ -52,6 +52,8 @@ function tokenize(text) {
     } else if ((matchedStr = matchIdentifier(text, currentPos))) {
       tokens.push(new IdentifierToken(matchedStr));
       currentPos += matchedStr.length;
+    } else if ((matchedStr = matchWhitespace(text, currentPos))) {
+      currentPos += matchedStr.length;
     } else {
       const endPos = currentPos + 10;
       let textShown = text.slice(currentPos, endPos);
@@ -102,6 +104,20 @@ function matchNumber(text, index) {
  */
 function matchIdentifier(text, index) {
   const pattern = /[a-z]\w*/iy;
+  pattern.lastIndex = index;
+  const result = pattern.exec(text);
+  return result ? result[0] : null;
+}
+
+/**
+ * Attempts to match consecutive whitespaces at the given index.
+ *
+ * @param {string} text
+ * @param {number} index
+ * @return {string | null}
+ */
+function matchWhitespace(text, index) {
+  const pattern = /\s+/iy;
   pattern.lastIndex = index;
   const result = pattern.exec(text);
   return result ? result[0] : null;
