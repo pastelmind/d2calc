@@ -18,42 +18,42 @@ function tokenize(text) {
     // Symbols
     switch (currentCh) {
       case "(":
-        tokens.push(new OpeningParenthesisToken());
+        tokens.push(new OpeningParenthesisToken(currentPos));
         ++currentPos;
         continue;
       case ")":
-        tokens.push(new ClosingParenthesisToken());
+        tokens.push(new ClosingParenthesisToken(currentPos));
         ++currentPos;
         continue;
       case "?":
-        tokens.push(new QuestionMarkToken());
+        tokens.push(new QuestionMarkToken(currentPos));
         ++currentPos;
         continue;
       case ":":
-        tokens.push(new ColonToken());
+        tokens.push(new ColonToken(currentPos));
         ++currentPos;
         continue;
       case ".":
-        tokens.push(new DotToken());
+        tokens.push(new DotToken(currentPos));
         ++currentPos;
         continue;
       case ",":
-        tokens.push(new CommaToken());
+        tokens.push(new CommaToken(currentPos));
         ++currentPos;
         continue;
     }
 
     if ((matchedStr = matchOperator(text, currentPos))) {
-      tokens.push(new OperatorToken(matchedStr));
+      tokens.push(new OperatorToken(currentPos, matchedStr));
       currentPos += matchedStr.length;
     } else if ((matchedStr = matchNumber(text, currentPos))) {
-      tokens.push(new NumberToken(parseInt(matchedStr)));
+      tokens.push(new NumberToken(currentPos, parseInt(matchedStr)));
       currentPos += matchedStr.length;
     } else if ((matchedStr = matchIdentifier(text, currentPos))) {
-      tokens.push(new IdentifierToken(matchedStr));
+      tokens.push(new IdentifierToken(currentPos, matchedStr));
       currentPos += matchedStr.length;
     } else if ((matchedStr = matchReference(text, currentPos)) !== null) {
-      tokens.push(new ReferenceToken(matchedStr));
+      tokens.push(new ReferenceToken(currentPos, matchedStr));
       // Account for opening/closing single-quotes
       currentPos += matchedStr.length + 2;
     } else if ((matchedStr = matchWhitespace(text, currentPos))) {
@@ -153,44 +153,55 @@ function matchReference(text, index) {
 }
 
 /** Base class for tokens. */
-class Token {}
+class Token {
+  /**
+   * @param {number} position Position of the token in the original string
+   */
+  constructor(position) {
+    this.position = position;
+  }
+}
 
 class NumberToken extends Token {
   /**
+   * @param {number} position Position of the token in the original string
    * @param {number} value Must be a nonnegative integer.
    */
-  constructor(value) {
-    super();
+  constructor(position, value) {
+    super(position);
     this.value = value;
   }
 }
 
 class IdentifierToken extends Token {
   /**
+   * @param {number} position Position of the token in the original string
    * @param {string} value Name of the identifier
    */
-  constructor(value) {
-    super();
+  constructor(position, value) {
+    super(position);
     this.value = value;
   }
 }
 
 class ReferenceToken extends Token {
   /**
+   * @param {number} position Position of the token in the original string
    * @param {string} value Name of a skill, missile, or stat
    */
-  constructor(value) {
-    super();
+  constructor(position, value) {
+    super(position);
     this.value = value;
   }
 }
 
 class OperatorToken extends Token {
   /**
+   * @param {number} position Position of the token in the original string
    * @param {string} operator
    */
-  constructor(operator) {
-    super();
+  constructor(position, operator) {
+    super(position);
     this.operator = operator;
   }
 }
