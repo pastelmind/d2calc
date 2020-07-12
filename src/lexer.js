@@ -52,6 +52,10 @@ function tokenize(text) {
     } else if ((matchedStr = matchIdentifier(text, currentPos))) {
       tokens.push(new IdentifierToken(matchedStr));
       currentPos += matchedStr.length;
+    } else if ((matchedStr = matchReference(text, currentPos)) !== null) {
+      tokens.push(new ReferenceToken(matchedStr));
+      // Account for opening/closing single-quotes
+      currentPos += matchedStr.length + 2;
     } else if ((matchedStr = matchWhitespace(text, currentPos))) {
       currentPos += matchedStr.length;
     } else {
@@ -121,6 +125,31 @@ function matchWhitespace(text, index) {
   pattern.lastIndex = index;
   const result = pattern.exec(text);
   return result ? result[0] : null;
+}
+
+/**
+ * Attempts to match a reference token in a string at the given index.
+ *
+ * @param {string} text
+ * @param {number} index
+ * @return {string | null} If a reference token is successfully matched, returns
+ *    the reference string (without the surrounding single-quotes). Note that
+ *    the string can be empty.
+ *    If the reference token cannot be matched, returns `null`.
+ * @throws {Error} If the opening single-quote character is not matched by a
+ *  closing single-quote character
+ */
+function matchReference(text, index) {
+  if (text.charAt(index) !== "'") return null;
+
+  const endIndex = text.indexOf("'", index + 1);
+  if (endIndex === -1) {
+    throw new Error(
+      `No closing single-quote (') character for reference at index ${index}`
+    );
+  }
+
+  return text.slice(index + 1, endIndex);
 }
 
 /** Base class for tokens. */
