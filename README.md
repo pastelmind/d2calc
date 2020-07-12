@@ -54,3 +54,15 @@ representing the ID of the skill, missile, or stat.
 
 If the interpreter encounters a function that does not exist (e.g. `man()`
 instead of `min()`), it returns the second argument.
+
+### Abstract Syntax
+
+```ebnf
+expression = number
+           | binary operator , expression , expression
+           | unary operator , expression
+           | expression , expression , expression   (* conditional expression *)
+           | identifier
+           | function , expression , expression
+           | function , ( reference | number ) , identifier , [ identifier ] ;
+```
