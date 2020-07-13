@@ -34,7 +34,7 @@ expression = number
 
 number          = digit , { digit } ;
 binary operator = "+" | "-" | "*" | "/" | "==" | "!=" | ">" | "<" | ">=" | "<=" ;
-unary operator  = "+" | "-" ;
+unary operator  = "-" ;
 reference       = "'" , { character - "'" } , "'" | number ;
 identifier      = letter , { letter | digit } ;
 
