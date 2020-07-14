@@ -170,6 +170,13 @@ class Token {
     this.position = position;
     this.rawValue = rawValue;
   }
+
+  /**
+   * @return {number} Position of the end of the token in the original string
+   */
+  endPosition() {
+    return this.position + this.rawValue.length;
+  }
 }
 
 class NumberToken extends Token {
