@@ -3,13 +3,17 @@
 const tokenize = require("./lexer.js");
 
 const {
+  AdditiveOperatorToken,
   ClosingParenthesisToken,
+  ColonToken,
   CommaToken,
-  DotToken,
+  ComparisonOperatorToken,
+  DotCodeToken,
   IdentifierToken,
+  MultiplicativeOperatorToken,
   NumberToken,
   OpeningParenthesisToken,
-  OperatorToken,
+  QuestionMarkToken,
   ReferenceToken,
   Token,
 } = tokenize;
@@ -23,11 +27,14 @@ const {
  */
 function parse(text) {
   const tokens = tokenize(text);
-  const [expression, tokensConsumed] = parseExpression(tokens, 0);
+  const tokenStream = new TokenStream(tokens);
+  const expression = parseExpression(tokenStream);
 
-  if (tokensConsumed < tokens.length) {
-    const unparsedTokens = tokens.slice(tokensConsumed);
-    throw new Error(`Unparsed tokens remaining: ${unparsedTokens}`);
+  const leftoverToken = tokenStream.peek();
+  if (leftoverToken) {
+    throw new Error(
+      `Unparsed token: "${leftoverToken.rawValue}" at position ${leftoverToken.position}`
+    );
   }
 
   return expression;
@@ -36,200 +43,361 @@ function parse(text) {
 /**
  * Attempts to parse a stream of tokens, starting at a given index.
  *
- * @param {InstanceType<Token>[]} tokens
- * @param {number} currentTokenIndex
- * @return {[ AstExpression , number ]} Tuple of `[ expr, tokensConsumed ]`.
- *    `expr` is the parsed AST node, and `tokensConsumed` is the number of
- *    tokens consumed in the process.
+ * @param {TokenStream} tokenStream
+ * @return {AstExpression}
  * @throws {Error} If an expression is malformed.
  */
-function parseExpression(tokens, currentTokenIndex) {
-  if (currentTokenIndex >= tokens.length) {
-    throw new Error("Unexpected end of input");
+function parseExpression(tokenStream) {
+  const leftExpression = parseAdditiveExpression(tokenStream);
+
+  const token = tokenStream.next().value;
+  // Early end
+  if (!token) {
+    return leftExpression;
   }
-  const currentToken = tokens[currentTokenIndex];
+  assertTokenIsInstanceOf(token, ComparisonOperatorToken);
 
-  if (currentToken instanceof NumberToken) {
-    return [new AstNumber(currentToken.value), 1];
+  const rightExpression = parseExpression(tokenStream);
+
+  return new AstBinaryOp(token.operator, leftExpression, rightExpression);
+}
+
+/**
+ * Attempts to parse an Additive Expression.
+ *
+ * @param {TokenStream} tokenStream
+ * @return {AstExpression}
+ * @throws {Error} If an expression is malformed.
+ */
+function parseAdditiveExpression(tokenStream) {
+  const leftExpression = parseMultiplicativeExpression(tokenStream);
+
+  const token = tokenStream.next().value;
+  // Early end
+  if (!token) {
+    return leftExpression;
   }
+  assertTokenIsInstanceOf(token, AdditiveOperatorToken);
 
-  if (currentToken instanceof IdentifierToken) {
-    const secondToken = tokens[currentTokenIndex + 1];
-    if (!(secondToken instanceof OpeningParenthesisToken)) {
-      // Plain identifier
-      return [new AstIdentifier(currentToken.value), 1];
-    }
+  const rightExpression = parseAdditiveExpression(tokenStream);
 
-    const arg1TokenIndex = currentTokenIndex + 2;
-    if (arg1TokenIndex >= tokens.length) {
-      throw new Error(
-        `Unexpected end of input; expected first argument for function ${currentToken.value} at position ${currentToken.position}`
-      );
-    }
-    const arg1Token = tokens[arg1TokenIndex];
+  return new AstBinaryOp(token.operator, leftExpression, rightExpression);
+}
 
-    if (arg1Token instanceof ReferenceToken) {
-      // Definitely a reference function call
-      const separator1TokenIndex = currentTokenIndex + 3;
-      if (separator1TokenIndex >= tokens.length) {
-        throw new Error(
-          `Unexpected end of input; expected first separator for function ${currentToken.value} at position ${currentToken.position}`
-        );
-      }
-      const separator1Token = tokens[separator1TokenIndex];
-      if (!(separator1Token instanceof DotToken)) {
-        throw new Error(
-          `Unexpected token ${separator1Token} at position ${separator1Token.position}; expected a dot (.)`
-        );
-      }
+/**
+ * Attempts to parse a Multiplicative Expression.
+ *
+ * @param {TokenStream} tokenStream
+ * @return {AstExpression}
+ * @throws {Error} If an expression is malformed.
+ */
+function parseMultiplicativeExpression(tokenStream) {
+  const leftExpression = parseUnaryExpression(tokenStream);
 
-      const identifier1TokenIndex = currentTokenIndex + 3;
-      if (identifier1TokenIndex >= tokens.length) {
-        throw new Error(
-          `Unexpected end of input; expected first identifier for function ${currentToken.value} at position ${currentToken.position}`
-        );
-      }
-      const identifier1Token = tokens[identifier1TokenIndex];
-      if (!(identifier1Token instanceof IdentifierToken)) {
-        throw new Error(
-          `Unexpected token ${identifier1Token} at position ${identifier1Token.position}; expected an identifier`
-        );
-      }
+  const token = tokenStream.next().value;
+  // Early end
+  if (!token) {
+    return leftExpression;
+  }
+  assertTokenIsInstanceOf(token, MultiplicativeOperatorToken);
 
-      const separator2TokenIndex = currentTokenIndex + 3;
-      if (separator2TokenIndex >= tokens.length) {
-        throw new Error(
-          `Unexpected end of input; expected second separator for function ${currentToken.value} at position ${currentToken.position}`
-        );
-      }
-      const separator2Token = tokens[separator2TokenIndex];
-      if (separator2Token instanceof ClosingParenthesisToken) {
-        // Reference function call with one identifier
-        return [
-          new AstReferenceFunctionCall(
-            currentToken.value,
-            arg1Token.value,
-            identifier1Token.value,
-            null
-          ),
-          3,
-        ];
-      }
-      if (!(separator2Token instanceof DotToken)) {
-        throw new Error(
-          `Unexpected token ${separator2Token} at position ${separator2Token.position}; expected a dot (.)`
-        );
-      }
+  const rightExpression = parseMultiplicativeExpression(tokenStream);
 
-      const identifier2TokenIndex = currentTokenIndex + 3;
-      if (identifier2TokenIndex >= tokens.length) {
-        throw new Error(
-          `Unexpected end of input; expected second identifier for function ${currentToken.value} at position ${currentToken.position}`
-        );
-      }
-      const identifier2Token = tokens[identifier2TokenIndex];
-      if (!(identifier2Token instanceof IdentifierToken)) {
-        throw new Error(
-          `Unexpected token ${identifier2Token} at position ${identifier2Token.position}; expected an identifier`
-        );
-      }
+  return new AstBinaryOp(token.operator, leftExpression, rightExpression);
+}
 
-      const endTokenIndex = currentTokenIndex + 3;
-      if (endTokenIndex >= tokens.length) {
-        throw new Error(
-          `Unexpected end of input; expected closing parenthesis for function ${currentToken.value} at position ${currentToken.position}`
-        );
-      }
-      const endToken = tokens[endTokenIndex];
-      if (!(endToken instanceof ClosingParenthesisToken)) {
-        throw new Error(
-          `Unexpected token ${endToken} at position ${endToken.position}; expected a closing parenthesis ()) for function ${currentToken.value} at position ${currentToken.position}`
-        );
-      }
-
-      // Reference function call with two identifiers
-      return [
-        new AstReferenceFunctionCall(
-          currentToken.value,
-          arg1Token.value,
-          identifier1Token.value,
-          identifier2Token.value
-        ),
-        5,
-      ];
-    }
-    if (arg1Token instanceof NumberToken) {
-      //
-    }
-
-    const [arg1, arg1TokensConsumed] = parseExpression(tokens, arg1TokenIndex);
-
-    const separator1TokenIndex = arg1TokenIndex + arg1TokensConsumed;
-    const [separator1Token, separator1TokensConsumed] = parseExpression(
-      tokens,
-      separator1TokenIndex
-    );
-    if (separator1Token instanceof CommaToken) {
-      // if (separator1Token instanceof )
-      // Should be a pro
-    }
+/**
+ * Attempts to parse an Unary Expression.
+ *
+ * @param {TokenStream} tokenStream
+ * @return {AstExpression}
+ * @throws {Error} If an expression is malformed.
+ */
+function parseUnaryExpression(tokenStream) {
+  const token = tokenStream.peek();
+  if (token instanceof AdditiveOperatorToken && token.operator === "-") {
+    tokenStream.next();
+    const innerExpression = parseConditionalExpression(tokenStream);
+    return new AstUnaryOp(token.operator, innerExpression);
   }
 
-  if (currentToken instanceof OperatorToken) {
-    const { operator } = currentToken;
-    if (operator === "+" || operator === "-") {
-      const [targetExpression, targetTokensConsumed] = parseExpression(
-        tokens,
-        currentTokenIndex + 1
-      );
-      return [
-        new AstUnaryOp(operator, targetExpression),
-        targetTokensConsumed + 1,
-      ];
-    }
+  return parseConditionalExpression(tokenStream);
+}
+
+/**
+ * Attempts to parse a Conditional Expression.
+ *
+ * @param {TokenStream} tokenStream
+ * @return {AstExpression}
+ * @throws {Error} If an expression is malformed.
+ */
+function parseConditionalExpression(tokenStream) {
+  const conditionExpr = parsePrimaryExpression(tokenStream);
+
+  const token1 = tokenStream.next().value;
+  // Early end
+  if (!token1) {
+    return conditionExpr;
+  }
+  assertTokenIsInstanceOf(token1, QuestionMarkToken);
+
+  const trueExpr = parsePrimaryExpression(tokenStream);
+
+  const token2 = tokenStream.next().value;
+  assertTokenIsInstanceOf(
+    token2,
+    ColonToken,
+    `; expected a colon (:) for conditional expression "${token1.rawValue}" at position ${token1.position}`
+  );
+
+  const falseExpr = parsePrimaryExpression(tokenStream);
+
+  return new AstConditional(conditionExpr, trueExpr, falseExpr);
+}
+
+/**
+ * Attempts to parse a Primary Expression.
+ *
+ * @param {TokenStream} tokenStream
+ * @return {AstPrimaryExpression}
+ * @throws {Error} If an expression is malformed.
+ */
+function parsePrimaryExpression(tokenStream) {
+  const token = tokenStream.next().value;
+
+  if (token instanceof NumberToken) {
+    return new AstNumber(token.number);
   }
 
-  if (currentToken instanceof OpeningParenthesisToken) {
-    const [innerExpression, innerTokensConsumed] = parseExpression(
-      tokens,
-      currentTokenIndex + 1
+  if (token instanceof IdentifierToken) {
+    const argListBeginToken = tokenStream.peek();
+    // Early end
+    if (!(argListBeginToken instanceof OpeningParenthesisToken)) {
+      return new AstIdentifier(token.rawValue);
+    }
+    tokenStream.next();
+
+    const funcName = token.rawValue;
+    const funcPos = token.position;
+
+    // Parse argument list
+    const firstArgToken = tokenStream.peek();
+    assertIsNotEndOfInput(
+      firstArgToken,
+      `; expected first argument for function "${funcName}" at position ${funcPos}`
     );
 
-    const endTokenIndex = currentTokenIndex + 1 + innerTokensConsumed;
-    if (endTokenIndex >= tokens.length) {
-      throw new Error(`Unclosed parenthesis at ${currentToken.position}`);
-    }
-    const endToken = tokens[endTokenIndex];
-    if (!(endToken instanceof ClosingParenthesisToken)) {
-      throw new Error(
-        `Unexpected token ${endToken} at position ${endToken.position}; expected a closing parenthesis`
+    // Definitely a reference function call
+    if (firstArgToken instanceof ReferenceToken) {
+      tokenStream.next();
+      const ref = firstArgToken.reference;
+
+      const dotCodeToken1 = tokenStream.next().value;
+      assertTokenIsInstanceOf(
+        dotCodeToken1,
+        DotCodeToken,
+        `; expected first dot code for reference function "${funcName}" at position ${funcPos}`
       );
+      const dotCode1 = dotCodeToken1.code;
+
+      const dotCodeToken2 = tokenStream.next().value;
+      assertIsNotEndOfInput(
+        dotCodeToken2,
+        `; expected a closing parenthesis (")") or second dot code for reference function "${funcName}" at position ${funcPos}`
+      );
+
+      let dotCode2;
+      // Single arg
+      if (dotCodeToken2 instanceof ClosingParenthesisToken) {
+        dotCode2 = null;
+      } else {
+        assertTokenIsInstanceOf(
+          dotCodeToken2,
+          DotCodeToken,
+          `; expected a closing parenthesis (")") or second dot code for reference function "${funcName}" at position ${funcPos}`
+        );
+        dotCode2 = dotCodeToken2.code;
+
+        const endToken = tokenStream.next().value;
+        assertTokenIsInstanceOf(
+          endToken,
+          ClosingParenthesisToken,
+          `; expected a closing parenthesis (")") for reference function "${funcName}" at position ${funcPos}`
+        );
+      }
+
+      return new AstRefFunctionCall(funcName, ref, dotCode1, dotCode2);
     }
 
-    return [innerExpression, innerTokensConsumed + 2];
+    // Is either a function call or a reference function call
+    // Attempt to parse the first argument as an expression
+    const argExpr1 = parseExpression(tokenStream);
+
+    const commaOrDotCodeToken = tokenStream.next().value;
+    // Definitely a function call
+    if (commaOrDotCodeToken instanceof CommaToken) {
+      const argExpression2 = parseExpression(tokenStream);
+
+      const endToken = tokenStream.next().value;
+      assertTokenIsInstanceOf(
+        endToken,
+        ClosingParenthesisToken,
+        `; expected a closing parenthesis for function "${funcName}" at position ${funcPos}`
+      );
+
+      return new AstFunctionCall(funcName, argExpr1, argExpression2);
+    } else {
+      assertTokenIsInstanceOf(
+        commaOrDotCodeToken,
+        DotCodeToken,
+        `; expected a comma (,) or dot-code (.code) for function "${funcName}" at position ${funcPos}`
+      );
+      const dotCode1 = commaOrDotCodeToken.code;
+
+      if (!(argExpr1 instanceof AstPrimaryExpression)) {
+        throw new Error(
+          `Disallowed expression at position ${firstArgToken.position}` +
+            `; the first argument of the reference function "${funcName}" must be ` +
+            `a number, identifier, or an expression wrapped in parentheses ("()")`
+        );
+      }
+
+      const dotCodeToken2 = tokenStream.next().value;
+      assertIsNotEndOfInput(
+        dotCodeToken2,
+        `; expected a closing parenthesis (")") or second dot code for reference function "${funcName}" at position ${funcPos}`
+      );
+
+      let dotCode2;
+      // Single arg
+      if (dotCodeToken2 instanceof ClosingParenthesisToken) {
+        dotCode2 = null;
+      } else {
+        assertTokenIsInstanceOf(
+          dotCodeToken2,
+          DotCodeToken,
+          `; expected a closing parenthesis (")") or second dot code for reference function "${funcName}" at position ${funcPos}`
+        );
+        dotCode2 = dotCodeToken2.code;
+
+        const endToken = tokenStream.next().value;
+        assertTokenIsInstanceOf(
+          endToken,
+          ClosingParenthesisToken,
+          `; expected a closing parenthesis (")") for reference function "${funcName}" at position ${funcPos}`
+        );
+      }
+
+      return new AstRefFunctionCall(funcName, argExpr1, dotCode1, dotCode2);
+    }
+  }
+
+  if (token instanceof OpeningParenthesisToken) {
+    const innerExpression = parseExpression(tokenStream);
+
+    const endToken = tokenStream.next().value;
+    assertTokenIsInstanceOf(
+      endToken,
+      ClosingParenthesisToken,
+      `; expected a ")" that matches the "(" at position ${token.position}`
+    );
+
+    return new AstParenthesizedExpression(innerExpression);
   }
 
   throw new Error(
-    `Unexpected token ${currentToken} at position ${currentToken.position}`
+    `Unexpected token "${token.rawValue}" at position ${token.position}`
   );
+}
+
+/**
+ * Asserts that `token` is not an end-of-input token.
+ *
+ * @param {InstanceType<Token> | undefined} token
+ * @param {string?} extraMessage String to append to the default error message
+ * @return {asserts token}
+ * @throws {Error} If `token` is an end-of-input token
+ */
+function assertIsNotEndOfInput(token, extraMessage = "") {
+  if (!token) {
+    throw new Error(`Unexpected end of input${extraMessage}`);
+  }
+}
+
+/**
+ * A generic constructor type.
+ * Based on https://dev.to/krumpet/generic-type-guard-in-typescript-258l
+ * @template T
+ * @typedef {{ new (...args: any[]): T }} Constructor
+ */
+
+/**
+ * Asserts that `token` is an instance of `tokenConstructor`.
+ *
+ * @param {InstanceType<Token> | undefined} token
+ * @template {InstanceType<Token>} T
+ * @param {Constructor<T>} tokenConstructor
+ * @param {string?} extraMessage String to append to the default error message
+ * @return {asserts token is T}
+ * @throws {Error} If `token` is an end-of-input token, or otherwise not an
+ *    instance of `tokenConstructor`
+ */
+function assertTokenIsInstanceOf(token, tokenConstructor, extraMessage = "") {
+  assertIsNotEndOfInput(token, extraMessage);
+  if (!(token instanceof tokenConstructor)) {
+    throw new Error(
+      `Unexpected token "${token.rawValue}" a position ${token.position}`
+    );
+  }
+}
+
+/**
+ * A token stream that supports peeking. Implements the iterator protocol.
+ */
+class TokenStream {
+  /**
+   * @param {InstanceType<Token>[]} tokens Array of tokens
+   */
+  constructor(tokens) {
+    /** @private */
+    this.tokens_ = tokens;
+    /** @private */
+    this.currentIndex_ = 0;
+  }
+
+  /**
+   * Returns the next token object in the stream, or `undefined` if the stream
+   * contains no more tokens.
+   *
+   * @return {IteratorResult<InstanceType<Token>, undefined>}
+   */
+  next() {
+    const value = this.tokens_[this.currentIndex_];
+    if (value) {
+      this.currentIndex_++;
+      return { value };
+    } else {
+      return { done: true, value: undefined };
+    }
+  }
+
+  /**
+   * Returns the next token object in the stream, or `undefined` if the stream
+   * contains no more tokens.
+   *
+   * @return {InstanceType<Token> | undefined}
+   */
+  peek() {
+    return this.tokens_[this.currentIndex_];
+  }
 }
 
 /** Base class for AST expression nodes */
 class AstExpression {}
 
-class AstNumber extends AstExpression {
-  /**
-   * @param {number} value Must be a nonnegative number
-   */
-  constructor(value) {
-    super();
-    this.value = value;
-  }
-}
-
 class AstBinaryOp extends AstExpression {
   /**
-   * @param {string} operator Binary operator
+   * @param {"+" | "-" | "*" | "/" | "==" | "!=" | "<" | ">" | "<=" | ">="} operator
    * @param {AstExpression} left Left side expression
    * @param {AstExpression} right Right side expression
    */
@@ -243,7 +411,7 @@ class AstBinaryOp extends AstExpression {
 
 class AstUnaryOp extends AstExpression {
   /**
-   * @param {string} operator Unary operator
+   * @param {"-"} operator Unary operator
    * @param {AstExpression} expression Expression to apply the operator
    */
   constructor(operator, expression) {
@@ -255,9 +423,9 @@ class AstUnaryOp extends AstExpression {
 
 class AstConditional extends AstExpression {
   /**
-   * @param {AstExpression} condition
-   * @param {AstExpression} trueExpression Expression to evaluate if condition is true (non-zero)
-   * @param {AstExpression} falseExpression Expression to evaluate if condition is false (zero)
+   * @param {AstPrimaryExpression} condition
+   * @param {AstPrimaryExpression} trueExpression Expression to evaluate if condition is true (non-zero)
+   * @param {AstPrimaryExpression} falseExpression Expression to evaluate if condition is false (zero)
    */
   constructor(condition, trueExpression, falseExpression) {
     super();
@@ -267,7 +435,23 @@ class AstConditional extends AstExpression {
   }
 }
 
-class AstIdentifier extends AstExpression {
+/**
+ * Base class for primary expressions.
+ * This class is needed by the parser.
+ */
+class AstPrimaryExpression extends AstExpression {}
+
+class AstNumber extends AstPrimaryExpression {
+  /**
+   * @param {number} value Must be a nonnegative number
+   */
+  constructor(value) {
+    super();
+    this.value = value;
+  }
+}
+
+class AstIdentifier extends AstPrimaryExpression {
   /**
    * @param {string} name
    */
@@ -277,7 +461,7 @@ class AstIdentifier extends AstExpression {
   }
 }
 
-class AstFunctionCall extends AstExpression {
+class AstFunctionCall extends AstPrimaryExpression {
   /**
    * @param {string} functionName
    * @param {AstExpression} arg1
@@ -291,10 +475,10 @@ class AstFunctionCall extends AstExpression {
   }
 }
 
-class AstReferenceFunctionCall extends AstExpression {
+class AstRefFunctionCall extends AstPrimaryExpression {
   /**
    * @param {string} functionName
-   * @param {string | number} reference
+   * @param {string | AstExpression} reference
    * @param {string} identifier1
    * @param {string | null} identifier2
    */
@@ -307,12 +491,28 @@ class AstReferenceFunctionCall extends AstExpression {
   }
 }
 
+/**
+ * An expression wrapped in parentheses.
+ * This node is meaningful only for parsing, and does not affect the interpreter.
+ */
+class AstParenthesizedExpression extends AstPrimaryExpression {
+  /**
+   * @param {AstExpression} expression
+   */
+  constructor(expression) {
+    super();
+    this.expression = expression;
+  }
+}
+
 module.exports = parse;
 module.exports.AstExpression = AstExpression;
 module.exports.AstNumber = AstNumber;
 module.exports.AstBinaryOp = AstBinaryOp;
 module.exports.AstUnaryOp = AstUnaryOp;
 module.exports.AstConditional = AstConditional;
+module.exports.AstPrimaryExpression = AstPrimaryExpression;
 module.exports.AstIdentifier = AstIdentifier;
 module.exports.AstFunctionCall = AstFunctionCall;
-module.exports.AstReferenceFunctionCall = AstReferenceFunctionCall;
+module.exports.AstRefFunctionCall = AstRefFunctionCall;
+module.exports.AstParenthesizedExpression = AstParenthesizedExpression;
