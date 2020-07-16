@@ -217,7 +217,7 @@ describe("parse()", () => {
     // Unlike most C-alike languages, Diablo 2 gives conditional expressions
     // higher priority than other operators.
     itParsesTo(
-      "lvl == 1 + 5 * 3 ? something : 0",
+      "lvl == 1 + 5 * -3 ? something : 0",
       new AstBinaryOp(
         "==",
         new AstIdentifier("lvl"),
@@ -227,10 +227,13 @@ describe("parse()", () => {
           new AstBinaryOp(
             "*",
             new AstNumber(5),
-            new AstConditional(
-              new AstNumber(3),
-              new AstIdentifier("something"),
-              new AstNumber(0)
+            new AstUnaryOp(
+              "-",
+              new AstConditional(
+                new AstNumber(3),
+                new AstIdentifier("something"),
+                new AstNumber(0)
+              )
             )
           )
         )
