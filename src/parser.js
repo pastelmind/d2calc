@@ -3,16 +3,14 @@
 const tokenize = require("./lexer.js");
 
 const {
-  AdditiveOperatorToken,
   ClosingParenthesisToken,
   ColonToken,
   CommaToken,
-  ComparisonOperatorToken,
   DotCodeToken,
   IdentifierToken,
-  MultiplicativeOperatorToken,
   NumberToken,
   OpeningParenthesisToken,
+  OperatorToken,
   QuestionMarkToken,
   ReferenceToken,
   Token,
@@ -41,69 +39,55 @@ function parse(text) {
 }
 
 /**
- * Attempts to parse a stream of tokens, starting at a given index.
- *
- * @param {TokenStream} tokenStream
- * @return {AstExpression}
- * @throws {Error} If an expression is malformed.
+ * Describes the precedence of binary operators.
+ * Precedence values must be nonnegative integers.
  */
-function parseExpression(tokenStream) {
-  const leftExpr = parseAdditiveExpression(tokenStream);
-
-  const operatorToken = tokenStream.peek();
-  // Early end
-  if (!(operatorToken instanceof ComparisonOperatorToken)) {
-    return leftExpr;
-  }
-  tokenStream.next();
-
-  const rightExpr = parseExpression(tokenStream);
-
-  return new AstBinaryOp(operatorToken.operator, leftExpr, rightExpr);
-}
+const BINARY_OPERATOR_PRECEDENCE = {
+  "*": 2,
+  "/": 2,
+  "+": 1,
+  "-": 1,
+  "==": 0,
+  "!=": 0,
+  "<": 0,
+  ">": 0,
+  "<=": 0,
+  ">=": 0,
+};
 
 /**
- * Attempts to parse an Additive Expression.
+ * Parses an expression from a token stream.
  *
  * @param {TokenStream} tokenStream
+ * @param {number?} minPrecedence Minimum precedence of operators to accept.
+ *    Operators whose precedence is lower than this value are not be parsed.
  * @return {AstExpression}
  * @throws {Error} If an expression is malformed.
  */
-function parseAdditiveExpression(tokenStream) {
-  const leftExpr = parseMultiplicativeExpression(tokenStream);
+function parseExpression(tokenStream, minPrecedence = 0) {
+  let expression = parseUnaryExpression(tokenStream);
 
-  const operatorToken = tokenStream.peek();
-  // Early end
-  if (!(operatorToken instanceof AdditiveOperatorToken)) {
-    return leftExpr;
+  let operatorToken;
+  while ((operatorToken = tokenStream.peek()) instanceof OperatorToken) {
+    const { operator } = operatorToken;
+    const precedence = BINARY_OPERATOR_PRECEDENCE[operator];
+    if (typeof precedence !== "number") {
+      throw new Error(`No known precedence for operator "${operator}"`);
+    }
+
+    // Stop parsing if the operator has less precedence than the minimum allowed
+    if (precedence < minPrecedence) break;
+
+    tokenStream.next();
+
+    // When parsing the right-side expression, only allow operators with higher
+    // precedence than the current one. This ensures that operators with equal
+    // precedence are parsed left-associatively.
+    const rightExpression = parseExpression(tokenStream, precedence + 1);
+    expression = new AstBinaryOp(operator, expression, rightExpression);
   }
-  tokenStream.next();
 
-  const rightExpr = parseAdditiveExpression(tokenStream);
-
-  return new AstBinaryOp(operatorToken.operator, leftExpr, rightExpr);
-}
-
-/**
- * Attempts to parse a Multiplicative Expression.
- *
- * @param {TokenStream} tokenStream
- * @return {AstExpression}
- * @throws {Error} If an expression is malformed.
- */
-function parseMultiplicativeExpression(tokenStream) {
-  const leftExpr = parseUnaryExpression(tokenStream);
-
-  const operatorToken = tokenStream.peek();
-  // Early end
-  if (!(operatorToken instanceof MultiplicativeOperatorToken)) {
-    return leftExpr;
-  }
-  tokenStream.next();
-
-  const rightExpr = parseMultiplicativeExpression(tokenStream);
-
-  return new AstBinaryOp(operatorToken.operator, leftExpr, rightExpr);
+  return expression;
 }
 
 /**
@@ -115,7 +99,7 @@ function parseMultiplicativeExpression(tokenStream) {
  */
 function parseUnaryExpression(tokenStream) {
   const token = tokenStream.peek();
-  if (token instanceof AdditiveOperatorToken && token.operator === "-") {
+  if (token instanceof OperatorToken && token.operator === "-") {
     tokenStream.next();
     const innerExpression = parseConditionalExpression(tokenStream);
     return new AstUnaryOp(token.operator, innerExpression);
