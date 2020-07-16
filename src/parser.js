@@ -151,6 +151,7 @@ function parseConditionalExpression(tokenStream) {
  */
 function parsePrimaryExpression(tokenStream) {
   const token = tokenStream.next().value;
+  assertIsNotEndOfInput(token);
 
   if (token instanceof NumberToken) {
     return new AstNumber(token.number);
