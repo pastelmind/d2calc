@@ -6,6 +6,7 @@
 const assert = require("assert").strict;
 
 const parse = require("../src/parser.js");
+const { D2FSyntaxError } = require("../src/errors.js");
 
 const {
   AstBinaryOp,
@@ -299,80 +300,83 @@ describe("parse()", () => {
   });
 
   describe("should reject empty string", () => {
-    itFailsParseWith("", Error);
+    itFailsParseWith("", D2FSyntaxError);
   });
 
   describe("should reject out-of-place tokens", () => {
-    itFailsParseWith("1 2", Error);
-    itFailsParseWith("identifier 5", Error);
-    itFailsParseWith("foo bar", Error);
-    itFailsParseWith("12.34", Error);
-    itFailsParseWith("99,00", Error);
+    itFailsParseWith("1 2", D2FSyntaxError);
+    itFailsParseWith("identifier 5", D2FSyntaxError);
+    itFailsParseWith("foo bar", D2FSyntaxError);
+    itFailsParseWith("12.34", D2FSyntaxError);
+    itFailsParseWith("99,00", D2FSyntaxError);
   });
 
   describe("should reject mismatched parentheses", () => {
-    itFailsParseWith("123)", Error);
-    itFailsParseWith("(456", Error);
-    itFailsParseWith("((foo)(", Error);
-    itFailsParseWith("(bar))", Error);
+    itFailsParseWith("123)", D2FSyntaxError);
+    itFailsParseWith("(456", D2FSyntaxError);
+    itFailsParseWith("((foo)(", D2FSyntaxError);
+    itFailsParseWith("(bar))", D2FSyntaxError);
   });
 
   describe("should reject invalid operator syntax", () => {
-    itFailsParseWith("+25", Error);
-    itFailsParseWith("==", Error);
-    itFailsParseWith("1 + ", Error);
-    itFailsParseWith("== 24", Error);
-    itFailsParseWith("--3", Error);
-    itFailsParseWith("3 <  < 4", Error);
+    itFailsParseWith("+25", D2FSyntaxError);
+    itFailsParseWith("==", D2FSyntaxError);
+    itFailsParseWith("1 + ", D2FSyntaxError);
+    itFailsParseWith("== 24", D2FSyntaxError);
+    itFailsParseWith("--3", D2FSyntaxError);
+    itFailsParseWith("3 <  < 4", D2FSyntaxError);
   });
 
   describe("should reject out-of-place references", () => {
-    itFailsParseWith("'lone reference'", Error);
-    itFailsParseWith("'ref on left' + 12", Error);
-    itFailsParseWith("24 * 'ref on right'", Error);
+    itFailsParseWith("'lone reference'", D2FSyntaxError);
+    itFailsParseWith("'ref on left' + 12", D2FSyntaxError);
+    itFailsParseWith("24 * 'ref on right'", D2FSyntaxError);
   });
 
   describe("should reject malformed conditional expressions", () => {
-    itFailsParseWith("5 ?", Error);
-    itFailsParseWith("? 12", Error);
-    itFailsParseWith("7 : 8", Error);
-    itFailsParseWith("100 :", Error);
-    itFailsParseWith(": 200", Error);
-    itFailsParseWith("cond ? true :", Error);
-    itFailsParseWith("cond ? : false", Error);
-    itFailsParseWith("cond ? 12 + 4 : 5", Error);
-    itFailsParseWith("cond ? -4 : 5", Error);
-    itFailsParseWith("cond ? 4 : -5", Error);
+    itFailsParseWith("5 ?", D2FSyntaxError);
+    itFailsParseWith("? 12", D2FSyntaxError);
+    itFailsParseWith("7 : 8", D2FSyntaxError);
+    itFailsParseWith("100 :", D2FSyntaxError);
+    itFailsParseWith(": 200", D2FSyntaxError);
+    itFailsParseWith("cond ? true :", D2FSyntaxError);
+    itFailsParseWith("cond ? : false", D2FSyntaxError);
+    itFailsParseWith("cond ? 12 + 4 : 5", D2FSyntaxError);
+    itFailsParseWith("cond ? -4 : 5", D2FSyntaxError);
+    itFailsParseWith("cond ? 4 : -5", D2FSyntaxError);
   });
 
   describe("should reject malformed function calls", () => {
-    itFailsParseWith("(asdf)(12, 5)", Error);
-    itFailsParseWith("2(12, 5)", Error);
-    itFailsParseWith("noclosingparen(12, 5", Error);
+    itFailsParseWith("(asdf)(12, 5)", D2FSyntaxError);
+    itFailsParseWith("2(12, 5)", D2FSyntaxError);
+    itFailsParseWith("noclosingparen(12, 5", D2FSyntaxError);
 
-    itFailsParseWith("noargs()", Error);
-    itFailsParseWith("notenoughargs(1)", Error);
-    itFailsParseWith("toomanyargs(1,2,3)", Error);
+    itFailsParseWith("noargs()", D2FSyntaxError);
+    itFailsParseWith("notenoughargs(1)", D2FSyntaxError);
+    itFailsParseWith("toomanyargs(1,2,3)", D2FSyntaxError);
 
-    itFailsParseWith("refnotallowed(12,'ref')", Error);
+    itFailsParseWith("refnotallowed(12,'ref')", D2FSyntaxError);
   });
 
   describe("should reject malformed reference function calls", () => {
-    itFailsParseWith("noclosingparen('ref'.code", Error);
-    itFailsParseWith("noclosingparen('ref'.code1.code2", Error);
+    itFailsParseWith("noclosingparen('ref'.code", D2FSyntaxError);
+    itFailsParseWith("noclosingparen('ref'.code1.code2", D2FSyntaxError);
 
-    itFailsParseWith("nodotcode('ref')", Error);
-    itFailsParseWith("toomanydotcodes('ref'.code1.code2.code3)", Error);
+    itFailsParseWith("nodotcode('ref')", D2FSyntaxError);
+    itFailsParseWith(
+      "toomanydotcodes('ref'.code1.code2.code3)",
+      D2FSyntaxError
+    );
 
-    itFailsParseWith("funcname('name'. test)", Error);
-    itFailsParseWith("funcname('name'12)", Error);
+    itFailsParseWith("funcname('name'. test)", D2FSyntaxError);
+    itFailsParseWith("funcname('name'12)", D2FSyntaxError);
   });
 
   describe("should reject non-primary expressions in reference function calls", () => {
-    itFailsParseWith("funcname(1?2:3.test)", Error);
-    itFailsParseWith("funcname(-5.test)", Error);
-    itFailsParseWith("funcname(100*200.test)", Error);
-    itFailsParseWith("funcname(300-400.test)", Error);
-    itFailsParseWith("funcname(500>600.test)", Error);
+    itFailsParseWith("funcname(1?2:3.test)", D2FSyntaxError);
+    itFailsParseWith("funcname(-5.test)", D2FSyntaxError);
+    itFailsParseWith("funcname(100*200.test)", D2FSyntaxError);
+    itFailsParseWith("funcname(300-400.test)", D2FSyntaxError);
+    itFailsParseWith("funcname(500>600.test)", D2FSyntaxError);
   });
 });

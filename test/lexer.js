@@ -6,6 +6,7 @@
 const assert = require("assert").strict;
 
 const tokenize = require("../src/lexer.js");
+const { D2FSyntaxError } = require("../src/errors.js");
 
 const {
   ClosingParenthesisToken,
@@ -127,26 +128,26 @@ describe("tokenize()", () => {
 
   describe("should reject invalid tokens", () => {
     // Invalid symbols
-    itFailsTokenizeWith("&", Error);
-    itFailsTokenizeWith("^", Error);
-    itFailsTokenizeWith("!", Error);
-    itFailsTokenizeWith("%", Error);
-    itFailsTokenizeWith(";", Error);
-    itFailsTokenizeWith("~", Error);
-    itFailsTokenizeWith("`", Error);
-    itFailsTokenizeWith("$", Error);
-    itFailsTokenizeWith("_", Error);
-    itFailsTokenizeWith("{", Error);
-    itFailsTokenizeWith("}", Error);
-    itFailsTokenizeWith("[", Error);
-    itFailsTokenizeWith("]", Error);
-    itFailsTokenizeWith("=", Error);
+    itFailsTokenizeWith("&", D2FSyntaxError);
+    itFailsTokenizeWith("^", D2FSyntaxError);
+    itFailsTokenizeWith("!", D2FSyntaxError);
+    itFailsTokenizeWith("%", D2FSyntaxError);
+    itFailsTokenizeWith(";", D2FSyntaxError);
+    itFailsTokenizeWith("~", D2FSyntaxError);
+    itFailsTokenizeWith("`", D2FSyntaxError);
+    itFailsTokenizeWith("$", D2FSyntaxError);
+    itFailsTokenizeWith("_", D2FSyntaxError);
+    itFailsTokenizeWith("{", D2FSyntaxError);
+    itFailsTokenizeWith("}", D2FSyntaxError);
+    itFailsTokenizeWith("[", D2FSyntaxError);
+    itFailsTokenizeWith("]", D2FSyntaxError);
+    itFailsTokenizeWith("=", D2FSyntaxError);
 
     // Malformed tokens
-    itFailsTokenizeWith("123a", Error);
-    itFailsTokenizeWith("0x1000", Error);
-    itFailsTokenizeWith("'missing closing single-quote", Error);
-    itFailsTokenizeWith("missing opening single-quote'", Error);
-    itFailsTokenizeWith('"foo"', Error);
+    itFailsTokenizeWith("123a", D2FSyntaxError);
+    itFailsTokenizeWith("0x1000", D2FSyntaxError);
+    itFailsTokenizeWith("'missing closing single-quote", D2FSyntaxError);
+    itFailsTokenizeWith("missing opening single-quote'", D2FSyntaxError);
+    itFailsTokenizeWith('"foo"', D2FSyntaxError);
   });
 });
