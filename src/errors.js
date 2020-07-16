@@ -7,6 +7,7 @@
  *  - D2CalcError
  *    - D2FError
  *      - D2FSyntaxError
+ *      - D2FInterpreterError
  *    - D2CalcInternalError
  *
  * To handle exceptions caused by invalid D2F code, catch `D2FError` instead.
@@ -35,9 +36,16 @@ D2FError.prototype.name = D2FError.name;
 class D2FSyntaxError extends D2FError {}
 D2FSyntaxError.prototype.name = D2FSyntaxError.name;
 
+/**
+ * Represents a logical error caused while interpreting D2F code.
+ */
+class D2FInterpreterError extends D2FError {}
+D2FInterpreterError.prototype.name = D2FInterpreterError.name;
+
 module.exports = {
   D2CalcError,
   D2CalcInternalError,
   D2FError,
   D2FSyntaxError,
+  D2FInterpreterError,
 };
