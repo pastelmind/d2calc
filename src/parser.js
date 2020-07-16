@@ -60,7 +60,7 @@ const BINARY_OPERATOR_PRECEDENCE = {
  * Parses an expression from a token stream.
  *
  * @param {TokenStream} tokenStream
- * @param {number?} minPrecedence Minimum precedence of operators to accept.
+ * @param {number=} minPrecedence Minimum precedence of operators to accept.
  *    Operators whose precedence is lower than this value are not be parsed.
  * @return {AstExpression}
  * @throws {D2FSyntaxError} If an expression is malformed.
@@ -320,7 +320,7 @@ function finishParsingReferenceCall(tokenStream, identifier, ref, dotCode1) {
  * Asserts that `token` is not an end-of-input token.
  *
  * @param {InstanceType<Token> | undefined} token
- * @param {string?} extraMessage String to append to the default error message
+ * @param {string=} extraMessage String to append to the default error message
  * @return {asserts token}
  * @throws {D2FSyntaxError} If `token` is an end-of-input token
  */
@@ -343,7 +343,7 @@ function assertIsNotEndOfInput(token, extraMessage = "") {
  * @param {InstanceType<Token> | undefined} token
  * @template {InstanceType<Token>} T
  * @param {Constructor<T>} tokenConstructor
- * @param {string?} extraMessage String to append to the default error message
+ * @param {string=} extraMessage String to append to the default error message
  * @return {asserts token is T}
  * @throws {D2FSyntaxError} If `token` is an end-of-input token, or otherwise
  *    not an instance of `tokenConstructor`
