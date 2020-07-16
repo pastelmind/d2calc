@@ -112,31 +112,31 @@ function parseUnaryExpression(tokenStream) {
  * Attempts to parse a Conditional Expression.
  *
  * @param {TokenStream} tokenStream
- * @return {AstExpression}
+ * @return {AstPrimaryExpression | AstConditional}
  * @throws {Error} If an expression is malformed.
  */
 function parseConditionalExpression(tokenStream) {
-  const conditionExpr = parsePrimaryExpression(tokenStream);
+  let conditionExpr = parsePrimaryExpression(tokenStream);
 
-  const questionToken = tokenStream.peek();
-  // Early end
-  if (!(questionToken instanceof QuestionMarkToken)) {
-    return conditionExpr;
+  let questionToken;
+  while ((questionToken = tokenStream.peek()) instanceof QuestionMarkToken) {
+    tokenStream.next();
+
+    const trueExpr = parsePrimaryExpression(tokenStream);
+
+    const colonToken = tokenStream.next().value;
+    assertTokenIsInstanceOf(
+      colonToken,
+      ColonToken,
+      `; expected a colon (:) for conditional expression "${questionToken.rawValue}" at position ${questionToken.position}`
+    );
+
+    const falseExpr = parsePrimaryExpression(tokenStream);
+
+    conditionExpr = new AstConditional(conditionExpr, trueExpr, falseExpr);
   }
-  tokenStream.next();
 
-  const trueExpr = parsePrimaryExpression(tokenStream);
-
-  const colonToken = tokenStream.next().value;
-  assertTokenIsInstanceOf(
-    colonToken,
-    ColonToken,
-    `; expected a colon (:) for conditional expression "${questionToken.rawValue}" at position ${questionToken.position}`
-  );
-
-  const falseExpr = parsePrimaryExpression(tokenStream);
-
-  return new AstConditional(conditionExpr, trueExpr, falseExpr);
+  return conditionExpr;
 }
 
 /**
@@ -425,7 +425,7 @@ class AstUnaryOp extends AstExpression {
 
 class AstConditional extends AstExpression {
   /**
-   * @param {AstPrimaryExpression} condition
+   * @param {AstPrimaryExpression | AstConditional} condition
    * @param {AstPrimaryExpression} trueExpression Expression to evaluate if condition is true (non-zero)
    * @param {AstPrimaryExpression} falseExpression Expression to evaluate if condition is false (zero)
    */
