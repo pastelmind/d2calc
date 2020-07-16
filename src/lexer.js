@@ -56,10 +56,9 @@ function matchTokenAt(text, index) {
       return new CommaToken(index);
     case "+":
     case "-":
-      return new AdditiveOperatorToken(index, currentCh);
     case "*":
     case "/":
-      return new MultiplicativeOperatorToken(index, currentCh);
+      return new OperatorToken(index, currentCh);
   }
 
   let matchedStr;
@@ -67,7 +66,7 @@ function matchTokenAt(text, index) {
   // Comparison operator
   if ((matchedStr = matchRegexAt(text, index, /<=?|>=?|==|!=/y)) !== null) {
     // @ts-ignore: Assigning string to a string literal type
-    return new ComparisonOperatorToken(index, matchedStr);
+    return new OperatorToken(index, matchedStr);
   }
   // Number
   if ((matchedStr = matchRegexAt(text, index, /\d+/y)) !== null) {
@@ -205,32 +204,10 @@ class ReferenceToken extends Token {
   }
 }
 
-class AdditiveOperatorToken extends Token {
+class OperatorToken extends Token {
   /**
    * @param {number} position Position of the token in the original string
-   * @param {"+" | "-"} operator
-   */
-  constructor(position, operator) {
-    super(position, operator);
-    this.operator = operator;
-  }
-}
-
-class MultiplicativeOperatorToken extends Token {
-  /**
-   * @param {number} position Position of the token in the original string
-   * @param {"*" | "/"} operator
-   */
-  constructor(position, operator) {
-    super(position, operator);
-    this.operator = operator;
-  }
-}
-
-class ComparisonOperatorToken extends Token {
-  /**
-   * @param {number} position Position of the token in the original string
-   * @param {"==" | "!=" | "<" | ">" | "<=" | ">="} operator
+   * @param {"+" | "-" | "*" | "/" | "==" | "!=" | "<" | ">" | "<=" | ">="} operator
    */
   constructor(position, operator) {
     super(position, operator);
@@ -303,9 +280,7 @@ module.exports.Token = Token;
 module.exports.NumberToken = NumberToken;
 module.exports.IdentifierToken = IdentifierToken;
 module.exports.ReferenceToken = ReferenceToken;
-module.exports.AdditiveOperatorToken = AdditiveOperatorToken;
-module.exports.MultiplicativeOperatorToken = MultiplicativeOperatorToken;
-module.exports.ComparisonOperatorToken = ComparisonOperatorToken;
+module.exports.OperatorToken = OperatorToken;
 module.exports.OpeningParenthesisToken = OpeningParenthesisToken;
 module.exports.ClosingParenthesisToken = ClosingParenthesisToken;
 module.exports.CommaToken = CommaToken;
