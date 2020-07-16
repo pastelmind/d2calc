@@ -63,15 +63,15 @@ Expressions are formed by joining tokens. Each token can be preceded or followed
 by zero or more whitespace characters.
 
 ```ebnf
-expression    = expression , operator , expression
-              | [ "-" ] , conditional ;
-conditional   = primary , [ "?" , primary , ":" , primary ] ;
-primary       = number
-              | "(" , expression , ")"
-              | identifier
-              | identifier , "(" , argument list , ")" ;
-argument list = ( reference | primary ) , dot code , [ dot code ]
-              | expression , "," , expression ;
+expression  = unary , { operator , unary } ;
+unary       = [ "-" ] , conditional ;
+conditional = primary , { "?" , primary , ":" , primary } ;
+primary     = number
+            | "(" , expression , ")"
+            | identifier
+            | identifier , "(" , arguments , ")" ;
+arguments   = ( reference | primary ) , dot code , [ dot code ]
+            | expression , "," , expression ;
 ```
 
 ### Operator Precedence
@@ -79,25 +79,33 @@ argument list = ( reference | primary ) , dot code , [ dot code ]
 Operators in D2F can be grouped by precedence, from highest to lowest:
 
 1. Parentheses
-2. Conditional expressions
+2. Conditional expressions (`a ? b : c`)
 3. Unary negative operator (`-`)
 4. Multiplicative operator: `*`, `/`
 5. Additive operator: `+`, `-`
 6. Comparison operator: `==`, `!=`, `>`, `<`, `>=`, `<=`
 
-Binary operators in the same group are left-associative.
+Binary operators in the same group are left-associative. Conditional expressions
+are also left-associative.
 
-Based on these rules, the production for `expression` can be expanded to a form
-suitable for recursive-descent parsing:
+The production rules above can be rewritten in left-recursive form to accurately
+reflect associativity and operator precedence:
 
 ```ebnf
-expression     = additive , [ comparison operator , expression ] ;
-additive       = multiplicative , [ ( "+" | "-" ) , additive ] ;
-multiplicative = unary , [ ( "*" | "/" ) , multiplicative ] ;
+expression     = expression , comparison operator , additive
+               | additive ;
+additive       = additive , ( "+" | "-" ) , multiplicative
+               | multiplicative ;
+multiplicative = multiplicative , ( "*" | "/" ) , unary
+               = unary ;
 unary          = [ "-" ] , conditional ;
+conditional    = conditional , "?" , primary , ":" , primary
+               | primary ;
 
 comparison operator = "==" | "!=" | ">" | "<" | ">=" | "<=" ;
 ```
+
+Note that this form is unsuitable for recursive-descent parsing.
 
 ### Abstract Syntax
 
