@@ -1,5 +1,7 @@
 "use strict";
 
+const { D2FSyntaxError } = require("./errors.js");
+
 /**
  * Tokenizes the given string.
  *
@@ -24,7 +26,7 @@ function tokenize(text) {
       const endPos = currentPos + 10;
       let textShown = text.slice(currentPos, endPos);
       if (endPos < text.length) textShown += "...";
-      throw new Error(
+      throw new D2FSyntaxError(
         `Cannot parse token at index ${currentPos} of input: "${textShown}"`
       );
     }
@@ -121,15 +123,15 @@ function matchIdentifier(text, index) {
  * @return {string | null} If a reference token is successfully matched, returns
  *    the reference string (with the surrounding single-quotes).
  *    If the reference token cannot be matched, returns `null`.
- * @throws {Error} If the opening single-quote character is not matched by a
- *  closing single-quote character
+ * @throws {D2FSyntaxError} If the opening single-quote character is not matched
+ *    by a closing single-quote character
  */
 function matchReference(text, index) {
   if (text.charAt(index) !== "'") return null;
 
   const endIndex = text.indexOf("'", index + 1);
   if (endIndex === -1) {
-    throw new Error(
+    throw new D2FSyntaxError(
       `No closing single-quote (') character for reference at index ${index}`
     );
   }
@@ -144,14 +146,14 @@ function matchReference(text, index) {
  * @param {number} index
  * @return {string | null} If a match is found, returns the dot code (without
  *    the leading dot). Otherwise, returns `null`.
- * @throws {Error} If the dot is not followed by a valid code
+ * @throws {D2FSyntaxError} If the dot is not followed by a valid code
  */
 function matchDotCode(text, index) {
   if (text.charAt(index) !== ".") return null;
 
   const code = matchIdentifier(text, index + 1);
   if (code === null) {
-    throw new Error(
+    throw new D2FSyntaxError(
       `Dot (.) is not followed by a valid identifier at index ${index}`
     );
   }
