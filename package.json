@@ -1,0 +1,27 @@
+{
+  "name": "d2calc",
+  "version": "0.0.1",
+  "description": "Interpreter for the mini-language used internally by Diablo 2",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pastelmind/d2calc.git"
+  },
+  "keywords": [
+    "diablo",
+    "diablo-2",
+    "interpreter"
+  ],
+  "author": "Yehyoung Kang",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/pastelmind/d2calc/issues"
+  },
+  "homepage": "https://github.com/pastelmind/d2calc#readme",
+  "devDependencies": {
+    "mocha": "^8.0.1"
+  }
+}
