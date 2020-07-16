@@ -485,15 +485,15 @@ class AstRefFunctionCall extends AstPrimaryExpression {
   /**
    * @param {string} functionName
    * @param {string | AstPrimaryExpression} reference
-   * @param {string} identifier1
-   * @param {string | null} identifier2
+   * @param {string} code1
+   * @param {string | null} code2
    */
-  constructor(functionName, reference, identifier1, identifier2) {
+  constructor(functionName, reference, code1, code2) {
     super();
     this.functionName = functionName;
     this.reference = reference;
-    this.identifier1 = identifier1;
-    this.identifier2 = identifier2;
+    this.code1 = code1;
+    this.code2 = code2;
   }
 }
 
