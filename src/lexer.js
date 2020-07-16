@@ -69,7 +69,7 @@ function matchTokenAt(text, index) {
     return new OperatorToken(index, matchedStr);
   }
   // Number
-  if ((matchedStr = matchRegexAt(text, index, /\d+/y)) !== null) {
+  if ((matchedStr = matchRegexAt(text, index, /\d+\b/y)) !== null) {
     return new NumberToken(index, matchedStr, parseInt(matchedStr));
   }
   // Identifier
