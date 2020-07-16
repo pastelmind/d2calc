@@ -10,51 +10,64 @@ const parse = require("../src/parser.js");
 const {
   AstBinaryOp,
   AstConditional,
-  AstExpression,
   AstFunctionCall,
   AstIdentifier,
   AstNumber,
-  AstReferenceFunctionCall,
+  AstParenthesizedExpression,
+  AstPrimaryExpression,
+  AstRefFunctionCall,
   AstUnaryOp,
 } = parse;
 
+/**
+ * Verifies that the given code matches the given AST.
+ *
+ * @param {string} code
+ * @param {AstExpression} ast
+ */
+function itParsesTo(code, ast) {
+  it(`Test "${code}"`, () => {
+    assert.deepStrictEqual(parse(code), ast);
+  });
+}
+
 describe("parse()", () => {
-  it("should parse numbers correctly", () => {
-    assert.deepStrictEqual(parse("5"), new AstNumber(5));
-    assert.deepStrictEqual(parse("494"), new AstNumber(494));
+  describe("should parse numbers correctly", () => {
+    itParsesTo("5", new AstNumber(5));
+    itParsesTo("494", new AstNumber(494));
   });
 
-  it("should parse identifiers correctly", () => {
-    assert.deepStrictEqual(parse("edmx"), new AstIdentifier("edmx"));
-    assert.deepStrictEqual(parse("foobar"), new AstIdentifier("foobar"));
+  describe("should parse identifiers correctly", () => {
+    itParsesTo("edmx", new AstIdentifier("edmx"));
+    itParsesTo("foobar", new AstIdentifier("foobar"));
   });
 
-  it("should parse binary operators correctly", () => {
-    assert.deepStrictEqual(
-      parse("1 + 2"),
+  describe("should parse binary operators correctly", () => {
+    itParsesTo(
+      "1 + 2",
       new AstBinaryOp("+", new AstNumber(1), new AstNumber(2))
     );
-    assert.deepStrictEqual(
-      parse("len / 25"),
+    itParsesTo(
+      "len / 25",
       new AstBinaryOp("/", new AstIdentifier("len"), new AstNumber(25))
     );
-    assert.deepStrictEqual(
-      parse("30 == blvl"),
+    itParsesTo(
+      "30 == blvl",
       new AstBinaryOp("==", new AstNumber(30), new AstIdentifier("blvl"))
     );
   });
 
-  it("should parse binary operators left-associatively", () => {
-    assert.deepStrictEqual(
-      parse("1 + 2 + 3"),
+  describe("should parse binary operators left-associatively", () => {
+    itParsesTo(
+      "1 + 2 + 3",
       new AstBinaryOp(
         "+",
         new AstBinaryOp("+", new AstNumber(1), new AstNumber(2)),
         new AstNumber(3)
       )
     );
-    assert.deepStrictEqual(
-      parse("par3 * par2 / 25 * clc1"),
+    itParsesTo(
+      "par3 * par2 / 25 * clc1",
       new AstBinaryOp(
         "*",
         new AstBinaryOp(
@@ -65,12 +78,12 @@ describe("parse()", () => {
             new AstIdentifier("par2")
           ),
           new AstNumber(25)
-        )
-      ),
-      new AstIdentifier("clc1")
+        ),
+        new AstIdentifier("clc1")
+      )
     );
-    assert.deepStrictEqual(
-      parse("12 == 34 != 56"),
+    itParsesTo(
+      "12 == 34 != 56",
       new AstBinaryOp(
         "!=",
         new AstBinaryOp("==", new AstNumber(12), new AstNumber(34)),
@@ -79,17 +92,17 @@ describe("parse()", () => {
     );
   });
 
-  it("should respect precedence of binary operators", () => {
-    assert.deepStrictEqual(
-      parse("25 + 2 * 9"),
+  describe("should respect precedence of binary operators", () => {
+    itParsesTo(
+      "25 + 2 * 9",
       new AstBinaryOp(
         "+",
         new AstNumber(25),
         new AstBinaryOp("*", new AstNumber(2), new AstNumber(9))
       )
     );
-    assert.deepStrictEqual(
-      parse("4 + value < 5 * 12 - 1"),
+    itParsesTo(
+      "4 + value < 5 * 12 - 1",
       new AstBinaryOp(
         "<",
         new AstBinaryOp("+", new AstNumber(4), new AstIdentifier("value")),
@@ -102,63 +115,68 @@ describe("parse()", () => {
     );
   });
 
-  it("should parse unary operators correctly", () => {
-    assert.deepStrictEqual(parse("+1"), new AstUnaryOp("+", new AstNumber(1)));
-    assert.deepStrictEqual(
-      parse("- dm34"),
-      new AstUnaryOp("-", new AstIdentifier("dm34"))
-    );
+  describe("should parse unary operators correctly", () => {
+    itParsesTo("-1", new AstUnaryOp("-", new AstNumber(1)));
+    itParsesTo("- dm34", new AstUnaryOp("-", new AstIdentifier("dm34")));
   });
 
-  it("should respect precedence of unary and binary operators", () => {
-    assert.deepStrictEqual(
-      parse("-44 + + 9"),
+  describe("should respect precedence of unary and binary operators", () => {
+    itParsesTo(
+      "-44 + - 9",
       new AstBinaryOp(
         "+",
         new AstUnaryOp("-", new AstNumber(44)),
-        new AstUnaryOp("+", new AstNumber(9))
+        new AstUnaryOp("-", new AstNumber(9))
       )
     );
-    assert.deepStrictEqual(
-      parse("+ elen <= - 34"),
+    itParsesTo(
+      "- elen <= - 34",
       new AstBinaryOp(
         "<=",
-        new AstUnaryOp("+", new AstIdentifier("elen")),
+        new AstUnaryOp("-", new AstIdentifier("elen")),
         new AstUnaryOp("-", new AstNumber(34))
       )
     );
   });
 
-  it("should parse parentheses correctly", () => {
-    assert.deepStrictEqual(parse("(4)"), new AstNumber(4));
-    assert.deepStrictEqual(
-      parse("(25 + 2) * 9"),
+  describe("should parse parentheses correctly", () => {
+    itParsesTo("(4)", new AstParenthesizedExpression(new AstNumber(4)));
+    itParsesTo(
+      "(25 + 2) * 9",
       new AstBinaryOp(
         "*",
-        new AstBinaryOp("+", new AstNumber(25), new AstNumber(2)),
+        new AstParenthesizedExpression(
+          new AstBinaryOp("+", new AstNumber(25), new AstNumber(2))
+        ),
         new AstNumber(9)
       )
     );
-    assert.deepStrictEqual(
-      parse("-((elen + (1000 >= 999)) * 9)"),
+    itParsesTo(
+      "-((elen + (1000 >= 999)) * 9)",
       new AstUnaryOp(
         "-",
-        new AstBinaryOp(
-          "*",
+        new AstParenthesizedExpression(
           new AstBinaryOp(
-            "+",
-            new AstIdentifier("elen"),
-            new AstBinaryOp(">=", new AstNumber(1000), new AstNumber(999))
-          ),
-          new AstNumber(9)
+            "*",
+            new AstParenthesizedExpression(
+              new AstBinaryOp(
+                "+",
+                new AstIdentifier("elen"),
+                new AstParenthesizedExpression(
+                  new AstBinaryOp(">=", new AstNumber(1000), new AstNumber(999))
+                )
+              )
+            ),
+            new AstNumber(9)
+          )
         )
       )
     );
   });
 
-  it("should parse conditional expressions correctly", () => {
-    assert.deepStrictEqual(
-      parse("lvl ? 12 : 0"),
+  describe("should parse conditional expressions correctly", () => {
+    itParsesTo(
+      "lvl ? 12 : 0",
       new AstConditional(
         new AstIdentifier("lvl"),
         new AstNumber(12),
@@ -167,24 +185,26 @@ describe("parse()", () => {
     );
   });
 
-  it("should respect associativity of conditional expressions", () => {
-    // I don't know if conditional expressions are left-associative in Diablo 2.
-    // For now, let's assume that it is right-associative.
-    assert.deepStrictEqual(
-      parse("1 ? 2 : 3 ? 4 : 5"),
+  describe("should parse conditional expressions left-associatively", () => {
+    itParsesTo(
+      "1 ? 2 : 3 ? 4 : 5",
       new AstConditional(
-        new AstNumber(1),
-        new AstNumber(2),
-        new AstConditional(new AstNumber(3), new AstNumber(4), new AstNumber(5))
+        new AstConditional(
+          new AstNumber(1),
+          new AstNumber(2),
+          new AstNumber(3)
+        ),
+        new AstNumber(4),
+        new AstNumber(5)
       )
     );
   });
 
-  it("should respect precedence of conditional expressions", () => {
+  describe("should respect precedence of conditional expressions", () => {
     // Unlike most C-alike languages, Diablo 2 gives conditional expressions
     // higher priority than other operators.
-    assert.deepStrictEqual(
-      parse("lvl == 1 + 5 * 3 ? something : 0"),
+    itParsesTo(
+      "lvl == 1 + 5 * 3 ? something : 0",
       new AstBinaryOp(
         "==",
         new AstIdentifier("lvl"),
@@ -203,35 +223,31 @@ describe("parse()", () => {
         )
       )
     );
-    assert.deepStrictEqual(
-      parse("0 ? 1 : 2 * 3 + 4 < lvl"),
+    itParsesTo(
+      "0 ? 1 : 2 < lvl * 3 + 4",
       new AstBinaryOp(
         "<",
+        new AstConditional(
+          new AstNumber(0),
+          new AstNumber(1),
+          new AstNumber(2)
+        ),
         new AstBinaryOp(
           "+",
-          new AstBinaryOp(
-            "*",
-            new AstConditional(
-              new AstNumber(0),
-              new AstNumber(1),
-              new AstNumber(2)
-            ),
-            new AstNumber(3)
-          ),
+          new AstBinaryOp("*", new AstIdentifier("lvl"), new AstNumber(3)),
           new AstNumber(4)
-        ),
-        new AstIdentifier("lvl")
+        )
       )
     );
   });
 
-  it("should parse function calls correctly", () => {
-    assert.deepStrictEqual(
-      parse("myfunc(2,4)"),
+  describe("should parse function calls correctly", () => {
+    itParsesTo(
+      "myfunc(2,4)",
       new AstFunctionCall("myfunc", new AstNumber(2), new AstNumber(4))
     );
-    assert.deepStrictEqual(
-      parse("max(5 * 2 , min(elen , 3))"),
+    itParsesTo(
+      "max(5 * 2 , min(elen , 3))",
       new AstFunctionCall(
         "max",
         new AstBinaryOp("*", new AstNumber(5), new AstNumber(2)),
@@ -240,18 +256,33 @@ describe("parse()", () => {
     );
   });
 
-  it("should parse reference function calls correctly", () => {
-    assert.deepStrictEqual(
-      parse("name('asdf'.len)"),
-      new AstReferenceFunctionCall("name", "asdf", "len", null)
+  describe("should parse reference function calls correctly", () => {
+    itParsesTo(
+      "name('asdf'.len)",
+      new AstRefFunctionCall("name", "asdf", "len", null)
     );
-    assert.deepStrictEqual(
-      parse("func(12.clc1)"),
-      new AstReferenceFunctionCall("func", 12, "clc1", null)
+    itParsesTo(
+      "func(12.clc1)",
+      new AstRefFunctionCall("func", new AstNumber(12), "clc1", null)
     );
-    assert.deepStrictEqual(
-      parse("functionName('some skill'.foo.bar)"),
-      new AstReferenceFunctionCall("functionName", "some skill", "foo", "bar")
+    itParsesTo(
+      "func(foo.bar)",
+      new AstRefFunctionCall("func", new AstIdentifier("foo"), "bar", null)
+    );
+    itParsesTo(
+      "temp((5 == 3).woon)",
+      new AstRefFunctionCall(
+        "temp",
+        new AstParenthesizedExpression(
+          new AstBinaryOp("==", new AstNumber(5), new AstNumber(3))
+        ),
+        "woon",
+        null
+      )
+    );
+    itParsesTo(
+      "functionName('some skill'.foo.bar)",
+      new AstRefFunctionCall("functionName", "some skill", "foo", "bar")
     );
   });
 });
