@@ -1,6 +1,7 @@
 "use strict";
 
 const tokenize = require("./lexer.js");
+const { D2CalcInternalError, D2FSyntaxError } = require("../src/errors.js");
 
 const {
   ClosingParenthesisToken,
@@ -21,7 +22,7 @@ const {
  *
  * @param {string} text
  * @return {AstExpression}
- * @throws {Error} If the expression is malformed.
+ * @throws {D2FSyntaxError} If the expression is malformed.
  */
 function parse(text) {
   const tokens = tokenize(text);
@@ -30,7 +31,7 @@ function parse(text) {
 
   const leftoverToken = tokenStream.peek();
   if (leftoverToken) {
-    throw new Error(
+    throw new D2FSyntaxError(
       `Unexpected token "${leftoverToken.rawValue}" at position ${leftoverToken.position}`
     );
   }
@@ -62,7 +63,7 @@ const BINARY_OPERATOR_PRECEDENCE = {
  * @param {number?} minPrecedence Minimum precedence of operators to accept.
  *    Operators whose precedence is lower than this value are not be parsed.
  * @return {AstExpression}
- * @throws {Error} If an expression is malformed.
+ * @throws {D2FSyntaxError} If an expression is malformed.
  */
 function parseExpression(tokenStream, minPrecedence = 0) {
   let expression = parseUnaryExpression(tokenStream);
@@ -72,7 +73,9 @@ function parseExpression(tokenStream, minPrecedence = 0) {
     const { operator } = operatorToken;
     const precedence = BINARY_OPERATOR_PRECEDENCE[operator];
     if (typeof precedence !== "number") {
-      throw new Error(`No known precedence for operator "${operator}"`);
+      throw new D2CalcInternalError(
+        `No known precedence for operator "${operator}"`
+      );
     }
 
     // Stop parsing if the operator has less precedence than the minimum allowed
@@ -95,7 +98,7 @@ function parseExpression(tokenStream, minPrecedence = 0) {
  *
  * @param {TokenStream} tokenStream
  * @return {AstExpression}
- * @throws {Error} If an expression is malformed.
+ * @throws {D2FSyntaxError} If an expression is malformed.
  */
 function parseUnaryExpression(tokenStream) {
   const token = tokenStream.peek();
@@ -113,7 +116,7 @@ function parseUnaryExpression(tokenStream) {
  *
  * @param {TokenStream} tokenStream
  * @return {AstPrimaryExpression | AstConditional}
- * @throws {Error} If an expression is malformed.
+ * @throws {D2FSyntaxError} If an expression is malformed.
  */
 function parseConditionalExpression(tokenStream) {
   let conditionExpr = parsePrimaryExpression(tokenStream);
@@ -144,7 +147,7 @@ function parseConditionalExpression(tokenStream) {
  *
  * @param {TokenStream} tokenStream
  * @return {AstPrimaryExpression}
- * @throws {Error} If an expression is malformed.
+ * @throws {D2FSyntaxError} If an expression is malformed.
  */
 function parsePrimaryExpression(tokenStream) {
   const token = tokenStream.next().value;
@@ -170,7 +173,7 @@ function parsePrimaryExpression(tokenStream) {
     return new AstParenthesizedExpression(innerExpression);
   }
 
-  throw new Error(
+  throw new D2FSyntaxError(
     `Unexpected token "${token.rawValue}" at position ${token.position}`
   );
 }
@@ -186,7 +189,7 @@ function parsePrimaryExpression(tokenStream) {
  * @param {InstanceType<IdentifierToken>} identifierToken Identifier token for
  *    the function name
  * @return {AstFunctionCall | AstRefFunctionCall | AstIdentifier}
- * @throws {Error} If an expression is malformed.
+ * @throws {D2FSyntaxError} If an expression is malformed.
  */
 function parseFunctionCallArgumentList(tokenStream, identifierToken) {
   const argListBeginToken = tokenStream.peek();
@@ -250,7 +253,7 @@ function parseFunctionCallArgumentList(tokenStream, identifierToken) {
     );
 
     if (!(argExpression1 instanceof AstPrimaryExpression)) {
-      throw new Error(
+      throw new D2FSyntaxError(
         `Disallowed expression at position ${firstArgToken.position}` +
           `; the first argument of the reference function "${funcName}" must be ` +
           `a number, identifier, or an expression wrapped in parentheses ("()")`
@@ -277,7 +280,7 @@ function parseFunctionCallArgumentList(tokenStream, identifierToken) {
  *    First argument for the reference function
  * @param {string} dotCode1 First dot code for the reference function
  * @return {AstRefFunctionCall}
- * @throws {Error} If an expression is malformed.
+ * @throws {D2FSyntaxError} If an expression is malformed.
  */
 function finishParsingReferenceCall(tokenStream, identifier, ref, dotCode1) {
   const funcName = identifier.rawValue;
@@ -318,11 +321,11 @@ function finishParsingReferenceCall(tokenStream, identifier, ref, dotCode1) {
  * @param {InstanceType<Token> | undefined} token
  * @param {string?} extraMessage String to append to the default error message
  * @return {asserts token}
- * @throws {Error} If `token` is an end-of-input token
+ * @throws {D2FSyntaxError} If `token` is an end-of-input token
  */
 function assertIsNotEndOfInput(token, extraMessage = "") {
   if (!token) {
-    throw new Error(`Unexpected end of input${extraMessage}`);
+    throw new D2FSyntaxError(`Unexpected end of input${extraMessage}`);
   }
 }
 
@@ -341,13 +344,13 @@ function assertIsNotEndOfInput(token, extraMessage = "") {
  * @param {Constructor<T>} tokenConstructor
  * @param {string?} extraMessage String to append to the default error message
  * @return {asserts token is T}
- * @throws {Error} If `token` is an end-of-input token, or otherwise not an
- *    instance of `tokenConstructor`
+ * @throws {D2FSyntaxError} If `token` is an end-of-input token, or otherwise
+ *    not an instance of `tokenConstructor`
  */
 function assertTokenIsInstanceOf(token, tokenConstructor, extraMessage = "") {
   assertIsNotEndOfInput(token, extraMessage);
   if (!(token instanceof tokenConstructor)) {
-    throw new Error(
+    throw new D2FSyntaxError(
       `Unexpected token "${token.rawValue}" at position ${token.position}`
     );
   }
