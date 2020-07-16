@@ -31,6 +31,18 @@ function itParsesTo(code, ast) {
   });
 }
 
+/**
+ * Verifies that `parse()` throws while processing the given code.
+ *
+ * @param {string} code
+ * @param {RegExp | Function | object} expectedError
+ */
+function itFailsParseWith(code, expectedError) {
+  it(`Test "${code}"`, () => {
+    assert.throws(() => parse(code), expectedError);
+  });
+}
+
 describe("parse()", () => {
   describe("should parse numbers correctly", () => {
     itParsesTo("5", new AstNumber(5));
@@ -284,5 +296,83 @@ describe("parse()", () => {
       "functionName('some skill'.foo.bar)",
       new AstRefFunctionCall("functionName", "some skill", "foo", "bar")
     );
+  });
+
+  describe("should reject empty string", () => {
+    itFailsParseWith("", Error);
+  });
+
+  describe("should reject out-of-place tokens", () => {
+    itFailsParseWith("1 2", Error);
+    itFailsParseWith("identifier 5", Error);
+    itFailsParseWith("foo bar", Error);
+    itFailsParseWith("12.34", Error);
+    itFailsParseWith("99,00", Error);
+  });
+
+  describe("should reject mismatched parentheses", () => {
+    itFailsParseWith("123)", Error);
+    itFailsParseWith("(456", Error);
+    itFailsParseWith("((foo)(", Error);
+    itFailsParseWith("(bar))", Error);
+  });
+
+  describe("should reject invalid operator syntax", () => {
+    itFailsParseWith("+25", Error);
+    itFailsParseWith("==", Error);
+    itFailsParseWith("1 + ", Error);
+    itFailsParseWith("== 24", Error);
+    itFailsParseWith("--3", Error);
+    itFailsParseWith("3 <  < 4", Error);
+  });
+
+  describe("should reject out-of-place references", () => {
+    itFailsParseWith("'lone reference'", Error);
+    itFailsParseWith("'ref on left' + 12", Error);
+    itFailsParseWith("24 * 'ref on right'", Error);
+  });
+
+  describe("should reject malformed conditional expressions", () => {
+    itFailsParseWith("5 ?", Error);
+    itFailsParseWith("? 12", Error);
+    itFailsParseWith("7 : 8", Error);
+    itFailsParseWith("100 :", Error);
+    itFailsParseWith(": 200", Error);
+    itFailsParseWith("cond ? true :", Error);
+    itFailsParseWith("cond ? : false", Error);
+    itFailsParseWith("cond ? 12 + 4 : 5", Error);
+    itFailsParseWith("cond ? -4 : 5", Error);
+    itFailsParseWith("cond ? 4 : -5", Error);
+  });
+
+  describe("should reject malformed function calls", () => {
+    itFailsParseWith("(asdf)(12, 5)", Error);
+    itFailsParseWith("2(12, 5)", Error);
+    itFailsParseWith("noclosingparen(12, 5", Error);
+
+    itFailsParseWith("noargs()", Error);
+    itFailsParseWith("notenoughargs(1)", Error);
+    itFailsParseWith("toomanyargs(1,2,3)", Error);
+
+    itFailsParseWith("refnotallowed(12,'ref')", Error);
+  });
+
+  describe("should reject malformed reference function calls", () => {
+    itFailsParseWith("noclosingparen('ref'.code", Error);
+    itFailsParseWith("noclosingparen('ref'.code1.code2", Error);
+
+    itFailsParseWith("nodotcode('ref')", Error);
+    itFailsParseWith("toomanydotcodes('ref'.code1.code2.code3)", Error);
+
+    itFailsParseWith("funcname('name'. test)", Error);
+    itFailsParseWith("funcname('name'12)", Error);
+  });
+
+  describe("should reject non-primary expressions in reference function calls", () => {
+    itFailsParseWith("funcname(1?2:3.test)", Error);
+    itFailsParseWith("funcname(-5.test)", Error);
+    itFailsParseWith("funcname(100*200.test)", Error);
+    itFailsParseWith("funcname(300-400.test)", Error);
+    itFailsParseWith("funcname(500>600.test)", Error);
   });
 });
