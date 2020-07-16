@@ -34,6 +34,18 @@ function itTokenizesTo(code, tokens) {
   });
 }
 
+/**
+ * Verifies that `tokenize()` throws while processing the given code.
+ *
+ * @param {string} code
+ * @param {RegExp | Function | object} expectedError
+ */
+function itFailsTokenizeWith(code, expectedError) {
+  it(`Test "${code}"`, () => {
+    assert.throws(() => tokenize(code), expectedError);
+  });
+}
+
 describe("tokenize()", () => {
   describe("should tokenize empty string to nothing", () => {
     itTokenizesTo("", []);
@@ -111,5 +123,30 @@ describe("tokenize()", () => {
       new ColonToken(19),
       new NumberToken(21, "0", 0),
     ]);
+  });
+
+  describe("should reject invalid tokens", () => {
+    // Invalid symbols
+    itFailsTokenizeWith("&", Error);
+    itFailsTokenizeWith("^", Error);
+    itFailsTokenizeWith("!", Error);
+    itFailsTokenizeWith("%", Error);
+    itFailsTokenizeWith(";", Error);
+    itFailsTokenizeWith("~", Error);
+    itFailsTokenizeWith("`", Error);
+    itFailsTokenizeWith("$", Error);
+    itFailsTokenizeWith("_", Error);
+    itFailsTokenizeWith("{", Error);
+    itFailsTokenizeWith("}", Error);
+    itFailsTokenizeWith("[", Error);
+    itFailsTokenizeWith("]", Error);
+    itFailsTokenizeWith("=", Error);
+
+    // Malformed tokens
+    itFailsTokenizeWith("123a", Error);
+    itFailsTokenizeWith("0x1000", Error);
+    itFailsTokenizeWith("'missing closing single-quote", Error);
+    itFailsTokenizeWith("missing opening single-quote'", Error);
+    itFailsTokenizeWith('"foo"', Error);
   });
 });
