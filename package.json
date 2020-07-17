@@ -21,6 +21,9 @@
     "url": "https://github.com/pastelmind/d2calc/issues"
   },
   "homepage": "https://github.com/pastelmind/d2calc#readme",
+  "files": [
+    "src/"
+  ],
   "devDependencies": {
     "mocha": "^8.0.1"
   }
