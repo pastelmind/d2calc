@@ -403,43 +403,42 @@ class TokenStream {
   }
 }
 
-/** Base class for AST expression nodes */
-class AstExpression {}
+/**
+ * Union type for AST expression nodes
+ * @typedef {AstBinaryOp | AstUnaryOp | AstConditional | AstNumber | AstIdentifier | AstFunctionCall | AstRefFunctionCall} AstExpression
+ */
 
-class AstBinaryOp extends AstExpression {
+class AstBinaryOp {
   /**
    * @param {"+" | "-" | "*" | "/" | "==" | "!=" | "<" | ">" | "<=" | ">="} operator
    * @param {AstExpression} left Left side expression
    * @param {AstExpression} right Right side expression
    */
   constructor(operator, left, right) {
-    super();
     this.operator = operator;
     this.left = left;
     this.right = right;
   }
 }
 
-class AstUnaryOp extends AstExpression {
+class AstUnaryOp {
   /**
    * @param {"-"} operator Unary operator
    * @param {AstExpression} expression Expression to apply the operator
    */
   constructor(operator, expression) {
-    super();
     this.operator = operator;
     this.expression = expression;
   }
 }
 
-class AstConditional extends AstExpression {
+class AstConditional {
   /**
    * @param {AstExpression} condition
    * @param {AstExpression} trueExpression Expression to evaluate if condition is true (non-zero)
    * @param {AstExpression} falseExpression Expression to evaluate if condition is false (zero)
    */
   constructor(condition, trueExpression, falseExpression) {
-    super();
     this.condition = condition;
     this.trueExpression = trueExpression;
     this.falseExpression = falseExpression;
@@ -451,7 +450,7 @@ class AstConditional extends AstExpression {
  * _except_ the Parenthesized Expression (`"(" expr ")"`).
  * This class is needed by the parser.
  */
-class AstIntegralExpression extends AstExpression {}
+class AstIntegralExpression {}
 
 class AstNumber extends AstIntegralExpression {
   /**
@@ -504,7 +503,6 @@ class AstRefFunctionCall extends AstIntegralExpression {
 }
 
 module.exports = parse;
-module.exports.AstExpression = AstExpression;
 module.exports.AstNumber = AstNumber;
 module.exports.AstBinaryOp = AstBinaryOp;
 module.exports.AstUnaryOp = AstUnaryOp;

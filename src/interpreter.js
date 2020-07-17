@@ -10,13 +10,16 @@ const {
 const {
   AstBinaryOp,
   AstConditional,
-  AstExpression,
   AstFunctionCall,
   AstIdentifier,
   AstNumber,
   AstRefFunctionCall,
   AstUnaryOp,
 } = parse;
+
+/**
+ * @typedef {import('./parser.js').AstExpression} AstExpression
+ */
 
 /**
  * @typedef {() => number} IdentifierFunction
@@ -81,7 +84,7 @@ function interpret(text, environment) {
 /**
  * Evaluates an AST expression node.
  *
- * @param {InstanceType<AstExpression>} expression
+ * @param {AstExpression} expression
  * @param {InterpreterEnvironment} environment Environment to use when
  *    interpreting the expression
  * @return {number} Signed 32-bit integer
@@ -122,8 +125,20 @@ function interpretExpression(expression, environment) {
     }
   }
 
+  // Exhaustiveness check
+  assertUnhandledExpressionType(expression);
+}
+
+/**
+ * Helper function to assist TypeScript's exhaustiveness check.
+ *
+ * @param {never} e
+ * @return {never}
+ */
+function assertUnhandledExpressionType(e) {
   throw new D2CalcInternalError(
-    `Unknown expression type: ${expression.constructor.name}`
+    // @ts-ignore Suppress because we want to retrieve the constructor name
+    `Unknown expression type: ${e ? e.constructor.name : e}`
   );
 }
 
