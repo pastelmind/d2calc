@@ -17,7 +17,6 @@ const {
   AstIdentifier,
   AstNumber,
   AstParenthesizedExpression,
-  AstPrimaryExpression,
   AstRefFunctionCall,
   AstUnaryOp,
 } = parse;
