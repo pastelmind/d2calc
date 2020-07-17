@@ -16,7 +16,6 @@ const {
   AstFunctionCall,
   AstIdentifier,
   AstNumber,
-  AstParenthesizedExpression,
   AstRefFunctionCall,
   AstUnaryOp,
 } = parse;
@@ -154,14 +153,12 @@ describe("parse()", () => {
   });
 
   describe("should parse parentheses correctly", () => {
-    itParsesTo("(4)", new AstParenthesizedExpression(new AstNumber(4)));
+    itParsesTo("(4)", new AstNumber(4));
     itParsesTo(
       "(25 + 2) * 9",
       new AstBinaryOp(
         "*",
-        new AstParenthesizedExpression(
-          new AstBinaryOp("+", new AstNumber(25), new AstNumber(2))
-        ),
+        new AstBinaryOp("+", new AstNumber(25), new AstNumber(2)),
         new AstNumber(9)
       )
     );
@@ -169,20 +166,14 @@ describe("parse()", () => {
       "-((elen + (1000 >= 999)) * 9)",
       new AstUnaryOp(
         "-",
-        new AstParenthesizedExpression(
+        new AstBinaryOp(
+          "*",
           new AstBinaryOp(
-            "*",
-            new AstParenthesizedExpression(
-              new AstBinaryOp(
-                "+",
-                new AstIdentifier("elen"),
-                new AstParenthesizedExpression(
-                  new AstBinaryOp(">=", new AstNumber(1000), new AstNumber(999))
-                )
-              )
-            ),
-            new AstNumber(9)
-          )
+            "+",
+            new AstIdentifier("elen"),
+            new AstBinaryOp(">=", new AstNumber(1000), new AstNumber(999))
+          ),
+          new AstNumber(9)
         )
       )
     );
@@ -290,9 +281,7 @@ describe("parse()", () => {
       "temp((5 == 3).woon)",
       new AstRefFunctionCall(
         "temp",
-        new AstParenthesizedExpression(
-          new AstBinaryOp("==", new AstNumber(5), new AstNumber(3))
-        ),
+        new AstBinaryOp("==", new AstNumber(5), new AstNumber(3)),
         "woon",
         null
       )
