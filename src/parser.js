@@ -115,7 +115,7 @@ function parseUnaryExpression(tokenStream) {
  * Attempts to parse a Conditional Expression.
  *
  * @param {TokenStream} tokenStream
- * @return {AstPrimaryExpression | AstConditional}
+ * @return {AstExpression}
  * @throws {D2FSyntaxError} If an expression is malformed.
  */
 function parseConditionalExpression(tokenStream) {
@@ -146,7 +146,7 @@ function parseConditionalExpression(tokenStream) {
  * Attempts to parse a Primary Expression.
  *
  * @param {TokenStream} tokenStream
- * @return {AstPrimaryExpression}
+ * @return {AstExpression}
  * @throws {D2FSyntaxError} If an expression is malformed.
  */
 function parsePrimaryExpression(tokenStream) {
@@ -171,7 +171,7 @@ function parsePrimaryExpression(tokenStream) {
       `; expected a ")" that matches the "(" at position ${token.position}`
     );
 
-    return new AstParenthesizedExpression(innerExpression);
+    return innerExpression;
   }
 
   throw new D2FSyntaxError(
@@ -253,7 +253,12 @@ function parseFunctionCallArgumentList(tokenStream, identifierToken) {
       `; expected a comma (,) or dot-code (.code) for function "${funcName}" at position ${funcPos}`
     );
 
-    if (!(argExpression1 instanceof AstPrimaryExpression)) {
+    if (
+      !(
+        argExpression1 instanceof AstIntegralExpression ||
+        firstArgToken instanceof OpeningParenthesisToken
+      )
+    ) {
       throw new D2FSyntaxError(
         `Disallowed expression at position ${firstArgToken.position}` +
           `; the first argument of the reference function "${funcName}" must be ` +
@@ -277,7 +282,7 @@ function parseFunctionCallArgumentList(tokenStream, identifierToken) {
  * @param {TokenStream} tokenStream
  * @param {InstanceType<IdentifierToken>} identifier
  *    Identifier token for the reference function name
- * @param {string | AstPrimaryExpression} ref
+ * @param {string | AstExpression} ref
  *    First argument for the reference function
  * @param {string} dotCode1 First dot code for the reference function
  * @return {AstRefFunctionCall}
@@ -429,9 +434,9 @@ class AstUnaryOp extends AstExpression {
 
 class AstConditional extends AstExpression {
   /**
-   * @param {AstPrimaryExpression | AstConditional} condition
-   * @param {AstPrimaryExpression} trueExpression Expression to evaluate if condition is true (non-zero)
-   * @param {AstPrimaryExpression} falseExpression Expression to evaluate if condition is false (zero)
+   * @param {AstExpression} condition
+   * @param {AstExpression} trueExpression Expression to evaluate if condition is true (non-zero)
+   * @param {AstExpression} falseExpression Expression to evaluate if condition is false (zero)
    */
   constructor(condition, trueExpression, falseExpression) {
     super();
@@ -442,12 +447,13 @@ class AstConditional extends AstExpression {
 }
 
 /**
- * Base class for primary expressions.
+ * Base class for integral expressions, which includes all primary expressions
+ * _except_ the Parenthesized Expression (`"(" expr ")"`).
  * This class is needed by the parser.
  */
-class AstPrimaryExpression extends AstExpression {}
+class AstIntegralExpression extends AstExpression {}
 
-class AstNumber extends AstPrimaryExpression {
+class AstNumber extends AstIntegralExpression {
   /**
    * @param {number} value Must be a nonnegative number
    */
@@ -457,7 +463,7 @@ class AstNumber extends AstPrimaryExpression {
   }
 }
 
-class AstIdentifier extends AstPrimaryExpression {
+class AstIdentifier extends AstIntegralExpression {
   /**
    * @param {string} name
    */
@@ -467,7 +473,7 @@ class AstIdentifier extends AstPrimaryExpression {
   }
 }
 
-class AstFunctionCall extends AstPrimaryExpression {
+class AstFunctionCall extends AstIntegralExpression {
   /**
    * @param {string} functionName
    * @param {AstExpression} arg1
@@ -481,10 +487,10 @@ class AstFunctionCall extends AstPrimaryExpression {
   }
 }
 
-class AstRefFunctionCall extends AstPrimaryExpression {
+class AstRefFunctionCall extends AstIntegralExpression {
   /**
    * @param {string} functionName
-   * @param {string | AstPrimaryExpression} reference
+   * @param {string | AstExpression} reference
    * @param {string} code1
    * @param {string | null} code2
    */
@@ -497,28 +503,13 @@ class AstRefFunctionCall extends AstPrimaryExpression {
   }
 }
 
-/**
- * An expression wrapped in parentheses.
- * This node is meaningful only for parsing, and does not affect the interpreter.
- */
-class AstParenthesizedExpression extends AstPrimaryExpression {
-  /**
-   * @param {AstExpression} expression
-   */
-  constructor(expression) {
-    super();
-    this.expression = expression;
-  }
-}
-
 module.exports = parse;
 module.exports.AstExpression = AstExpression;
 module.exports.AstNumber = AstNumber;
 module.exports.AstBinaryOp = AstBinaryOp;
 module.exports.AstUnaryOp = AstUnaryOp;
 module.exports.AstConditional = AstConditional;
-module.exports.AstPrimaryExpression = AstPrimaryExpression;
+module.exports.AstIntegralExpression = AstIntegralExpression;
 module.exports.AstIdentifier = AstIdentifier;
 module.exports.AstFunctionCall = AstFunctionCall;
 module.exports.AstRefFunctionCall = AstRefFunctionCall;
-module.exports.AstParenthesizedExpression = AstParenthesizedExpression;
