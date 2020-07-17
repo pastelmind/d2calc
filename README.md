@@ -10,6 +10,113 @@ For convenience, we will refer to this language as **D2F**.
 [Diablo 2]: https://en.wikipedia.org/wiki/Diablo_II
 [tab-separated values]: https://en.wikipedia.org/wiki/Tab-separated_values
 
+## Usage
+
+d2calc exports a single function named `interpret()`. It can be used like this:
+
+```js
+const interpret = require('d2calc');
+const result = interpret("4 * (-2 + 25)"); // 92
+```
+
+## API Reference
+
+### `interpret(code[, environment]) => number`
+
+Interprets the `code` using the `environment` and returns the result.
+
+#### Parameters:
+
+##### `code`
+
+* Type: `string`
+* Required: Yes
+
+D2F code to interpret.
+
+##### `environment`
+
+* Type: `object`
+* Required: No
+
+An object representing the environment to use while interpreting the code.
+
+The object may contain the following fields:
+
+##### `environment.identifiers`
+
+* Type:
+  ```ts
+  {
+    [name: string]: number | () => number;
+  } 
+  ```
+* Required: No
+
+An object that maps each identifier name to its value. Each value can be either
+a `number`, or a function that takes no arguments and returns a `number`.
+
+##### `environment.functions`
+
+* Type:
+  ```ts
+  {
+    [name: string]: (a: number, b: number) => number;
+  } 
+  ```
+* Required: No
+
+An object that maps each numeric function name to a numeric function. Each
+numeric function must take two numbers as arguments and return a number.
+
+##### `environment.referenceFunctions`
+
+* Type:
+  ```ts
+  {
+    [name: string]: (ref: string | number, code: string) => number;
+  } 
+  ```
+* Required: No
+
+An object that maps each function name to a single-qualifier reference function.
+Each reference function must take two arguments: a reference (`string` or
+`number`), and a qualifier code (`string`). It must return a number.
+
+##### `environment.referenceFunctions2Q`
+
+* Type:
+  ```ts
+  {
+    [name: string]: (ref: string | number, code1: string, code2: string) => number;
+  } 
+  ```
+* Required: No
+
+An object that maps each function name to a double-qualifier reference function.
+Each reference function must take three arguments: a reference (`string` or
+`number`), and two qualifier codes (`string`). It must return a number.
+
+### Exceptions
+
+d2calc throws a family of exceptions, depending on the nature of the error. Each
+exception class can be imported like this:
+
+```js
+const { D2FSyntaxError, D2FInterpreterError } = require('d2calc');
+// Alternative
+const interpret = require('d2calc');
+const { D2FSyntaxError, D2FInterpreterError } = interpret;
+```
+
+The exception hierarchy:
+
+* `D2CalcError`: Base class for all exceptions thrown by this package.
+    * `D2FError`: Base class for all exceptions caused by a D2F code error.
+        * `D2FInterpreterError`: Thrown if the code contains no syntax errors, but cannot be interpreted because it uses an identifier or function in an incorrect way.
+        * `D2FSyntaxError`: Thrown if the code contains a syntax error.
+    * `D2CalcInternalError`: Used internally for catching bugs. This exception is not intended to be catched by users.
+
 ## D2F Language Reference
 
 This section is based on the [Formulae Guide] from the [Phrozen Keep], as well
@@ -121,5 +228,6 @@ expression = number
 
 ### Interpreter Quirks
 
-If the interpreter encounters a function that does not exist (e.g. `man()`
-instead of `min()`), it returns the second argument.
+If Diablo 2 encounters a function that does not exist (e.g. `man()` instead of
+`min()`), it returns the second argument. d2calc does not implement this
+behavior, and instead throws a `D2FInterpreterError`.
