@@ -2,7 +2,7 @@
 
 // Explicit type annotation is needed to suppress TypeScript error.
 // See https://stackoverflow.com/a/59229771/ for more information.
-/** @type {import("assert").strict} */
+/** @type {typeof import("assert").strict} */
 const assert = require("assert").strict;
 
 const parse = require("../src/parser.js");
