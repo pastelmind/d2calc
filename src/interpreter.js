@@ -14,7 +14,6 @@ const {
   AstFunctionCall,
   AstIdentifier,
   AstNumber,
-  AstParenthesizedExpression,
   AstRefFunctionCall,
   AstUnaryOp,
 } = parse;
@@ -176,8 +175,6 @@ function interpretExpression(expression, environment) {
     }
   } else if (expression instanceof AstNumber) {
     return expression.value;
-  } else if (expression instanceof AstParenthesizedExpression) {
-    return interpretExpression(expression.expression, environment);
   } else if (expression instanceof AstRefFunctionCall) {
     const { functionName, reference, code1, code2 } = expression;
 
