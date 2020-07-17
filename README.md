@@ -19,6 +19,28 @@ const interpret = require('d2calc');
 const result = interpret("4 * (-2 + 25)"); // 92
 ```
 
+Or, with a custom environment object:
+
+```js
+const interpret = require('d2calc');
+const environment = {
+  identifiers: {
+    lvl: 3,
+    ln12: () => { /* Do something here */ },
+  },
+  functions: {
+    max: (a, b) => Math.max(a, b),
+    min: (a, b) => Math.min(a, b),
+  },
+  referenceFunctions: {
+    stat: (ref, code) => { /* Do something here */ },
+  },
+};
+
+// Calls the stat() and max() functions in the environment
+const result = interpret("min(lvl * 2560, stat('hp'.accr))", environment);
+```
+
 ## API Reference
 
 ### `interpret(code[, environment]) => number`
