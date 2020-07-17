@@ -69,14 +69,14 @@ const {
  * All callbacks must return a signed 32-bit integer.
  *
  * @param {string} text D2F code
- * @param {InterpreterEnvironment} environment Environment to use when
+ * @param {InterpreterEnvironment=} environment Environment to use when
  *    interpreting the code
  * @return {number} Signed 32-bit integer
  * @throws {D2FSyntaxError} If the code is syntactically invalid
  * @throws {D2FInterpreterError} If the code is syntactically valid, but an
  *    error occurs while interpreting the result
  */
-function interpret(text, environment) {
+function interpret(text, environment = {}) {
   const expression = parse(text);
   return interpretExpression(expression, environment);
 }
