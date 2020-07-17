@@ -93,35 +93,38 @@ function interpret(text, environment) {
  *    error occurs while interpreting the result
  */
 function interpretExpression(expression, environment) {
-  if (expression instanceof AstBinaryOp) {
-    return interpretBinaryOp(expression, environment);
-  } else if (expression instanceof AstConditional) {
-    const conditionValue = interpretExpression(
-      expression.condition,
-      environment
-    );
+  switch (expression.type) {
+    case "AstBinaryOp":
+      return interpretBinaryOp(expression, environment);
+    case "AstConditional": {
+      const conditionValue = interpretExpression(
+        expression.condition,
+        environment
+      );
 
-    if (conditionValue !== 0) {
-      return interpretExpression(expression.trueExpression, environment);
-    } else {
-      return interpretExpression(expression.falseExpression, environment);
+      if (conditionValue !== 0) {
+        return interpretExpression(expression.trueExpression, environment);
+      } else {
+        return interpretExpression(expression.falseExpression, environment);
+      }
     }
-  } else if (expression instanceof AstFunctionCall) {
-    return interpretFunctionCall(expression, environment);
-  } else if (expression instanceof AstIdentifier) {
-    return interpretIdentifier(expression, environment);
-  } else if (expression instanceof AstNumber) {
-    return expression.value;
-  } else if (expression instanceof AstRefFunctionCall) {
-    return interpretRefFunctionCall(expression, environment);
-  } else if (expression instanceof AstUnaryOp) {
-    switch (expression.operator) {
-      case "-":
-        return -interpretExpression(expression.expression, environment);
-      default:
-        throw new D2CalcInternalError(
-          `Unknown operator: "${expression.operator}"`
-        );
+    case "AstFunctionCall":
+      return interpretFunctionCall(expression, environment);
+    case "AstIdentifier":
+      return interpretIdentifier(expression, environment);
+    case "AstNumber":
+      return expression.value;
+    case "AstRefFunctionCall":
+      return interpretRefFunctionCall(expression, environment);
+    case "AstUnaryOp": {
+      switch (expression.operator) {
+        case "-":
+          return -interpretExpression(expression.expression, environment);
+        default:
+          throw new D2CalcInternalError(
+            `Unknown operator: "${expression.operator}"`
+          );
+      }
     }
   }
 

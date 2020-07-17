@@ -415,6 +415,8 @@ class AstBinaryOp {
    * @param {AstExpression} right Right side expression
    */
   constructor(operator, left, right) {
+    /** @type {"AstBinaryOp"} */
+    this.type = "AstBinaryOp";
     this.operator = operator;
     this.left = left;
     this.right = right;
@@ -427,6 +429,8 @@ class AstUnaryOp {
    * @param {AstExpression} expression Expression to apply the operator
    */
   constructor(operator, expression) {
+    /** @type {"AstUnaryOp"} */
+    this.type = "AstUnaryOp";
     this.operator = operator;
     this.expression = expression;
   }
@@ -439,6 +443,8 @@ class AstConditional {
    * @param {AstExpression} falseExpression Expression to evaluate if condition is false (zero)
    */
   constructor(condition, trueExpression, falseExpression) {
+    /** @type {"AstConditional"} */
+    this.type = "AstConditional";
     this.condition = condition;
     this.trueExpression = trueExpression;
     this.falseExpression = falseExpression;
@@ -458,6 +464,8 @@ class AstNumber extends AstIntegralExpression {
    */
   constructor(value) {
     super();
+    /** @type {"AstNumber"} */
+    this.type = "AstNumber";
     this.value = value;
   }
 }
@@ -468,6 +476,8 @@ class AstIdentifier extends AstIntegralExpression {
    */
   constructor(name) {
     super();
+    /** @type {"AstIdentifier"} */
+    this.type = "AstIdentifier";
     this.name = name;
   }
 }
@@ -480,6 +490,8 @@ class AstFunctionCall extends AstIntegralExpression {
    */
   constructor(functionName, arg1, arg2) {
     super();
+    /** @type {"AstFunctionCall"} */
+    this.type = "AstFunctionCall";
     this.functionName = functionName;
     this.arg1 = arg1;
     this.arg2 = arg2;
@@ -495,6 +507,8 @@ class AstRefFunctionCall extends AstIntegralExpression {
    */
   constructor(functionName, reference, code1, code2) {
     super();
+    /** @type {"AstRefFunctionCall"} */
+    this.type = "AstRefFunctionCall";
     this.functionName = functionName;
     this.reference = reference;
     this.code1 = code1;
