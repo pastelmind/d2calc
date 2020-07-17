@@ -8,6 +8,8 @@ const assert = require("assert").strict;
 const parse = require("../src/parser.js");
 const { D2FSyntaxError } = require("../src/errors.js");
 
+/** @typedef {ReturnType<parse>} AstExpression */
+
 const {
   AstBinaryOp,
   AstConditional,
