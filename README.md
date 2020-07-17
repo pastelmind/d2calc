@@ -135,10 +135,10 @@ D2F supports the following tokens:
 ```ebnf
 (* Tokens *)
 operator   = "+" | "-" | "*" | "/" | "==" | "!=" | ">" | "<" | ">=" | "<=" ;
-symbol     = "(" | ")" | "?" | ":" | ","
+symbol     = "(" | ")" | "?" | ":" | "," ;
 identifier = letter, { letter | digit } ;
 reference  = "'" , { character - "'" } , "'";
-dot code   = "." , identifier
+dot code   = "." , identifier ;
 
 (* Character classes *)
 character = (* All possible characters *) ;
