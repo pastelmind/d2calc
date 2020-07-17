@@ -91,39 +91,7 @@ function interpret(text, environment) {
  */
 function interpretExpression(expression, environment) {
   if (expression instanceof AstBinaryOp) {
-    const leftValue = interpretExpression(expression.left, environment);
-    const rightValue = interpretExpression(expression.right, environment);
-
-    switch (expression.operator) {
-      case "+":
-        return leftValue + rightValue;
-      case "-":
-        return leftValue - rightValue;
-      case "*":
-        return leftValue * rightValue;
-      case "/":
-        if (rightValue === 0) {
-          return 0;
-        } else {
-          return Math.trunc(leftValue / rightValue);
-        }
-      case "==":
-        return leftValue === rightValue ? 1 : 0;
-      case "!=":
-        return leftValue !== rightValue ? 1 : 0;
-      case "<":
-        return leftValue < rightValue ? 1 : 0;
-      case ">":
-        return leftValue > rightValue ? 1 : 0;
-      case "<=":
-        return leftValue <= rightValue ? 1 : 0;
-      case ">=":
-        return leftValue >= rightValue ? 1 : 0;
-      default:
-        throw new D2CalcInternalError(
-          `Unknown operator: "${expression.operator}"`
-        );
-    }
+    return interpretBinaryOp(expression, environment);
   } else if (expression instanceof AstConditional) {
     const conditionValue = interpretExpression(
       expression.condition,
@@ -136,101 +104,13 @@ function interpretExpression(expression, environment) {
       return interpretExpression(expression.falseExpression, environment);
     }
   } else if (expression instanceof AstFunctionCall) {
-    const { functionName, arg1, arg2 } = expression;
-    const { functions = {} } = environment;
-    const func = functions[functionName];
-
-    if (func == undefined) {
-      throw new D2FInterpreterError(`Unknown function: ${functionName}`);
-    } else {
-      const argValue1 = interpretExpression(arg1, environment);
-      const argValue2 = interpretExpression(arg2, environment);
-
-      try {
-        return func(argValue1, argValue2);
-      } catch (e) {
-        if (e instanceof Error) {
-          e.message += ` (caused while calling function "${functionName})"`;
-        }
-        throw e;
-      }
-    }
+    return interpretFunctionCall(expression, environment);
   } else if (expression instanceof AstIdentifier) {
-    const { identifiers = {} } = environment;
-    const identifier = identifiers[expression.name];
-
-    if (identifier == undefined) {
-      throw new D2FInterpreterError(`Unknown identifier: ${expression.name}`);
-    } else if (typeof identifier === "number") {
-      return identifier;
-    } else {
-      try {
-        return identifier();
-      } catch (e) {
-        if (e instanceof Error) {
-          e.message += ` (caused while evaluating identifier "${expression.name})"`;
-        }
-        throw e;
-      }
-    }
+    return interpretIdentifier(expression, environment);
   } else if (expression instanceof AstNumber) {
     return expression.value;
   } else if (expression instanceof AstRefFunctionCall) {
-    const { functionName, reference, code1, code2 } = expression;
-
-    if (code2 == null) {
-      const { referenceFunctions = {} } = environment;
-      const func = referenceFunctions[functionName];
-
-      if (func == undefined) {
-        throw new D2FInterpreterError(
-          `Unknown single-qualifier reference function: ${functionName}`
-        );
-      } else {
-        let refValue;
-        if (typeof reference === "string") {
-          refValue = reference;
-        } else {
-          refValue = interpretExpression(reference, environment);
-        }
-
-        try {
-          return func(refValue, code1);
-        } catch (e) {
-          if (e instanceof Error) {
-            e.message += ` (caused while evaluating single-qualifier reference function "${functionName})"`;
-          }
-
-          throw e;
-        }
-      }
-    } else {
-      const { referenceFunctions2Q = {} } = environment;
-      const func = referenceFunctions2Q[functionName];
-
-      if (func == undefined) {
-        throw new D2FInterpreterError(
-          `Unknown double-qualifier reference function: ${functionName}`
-        );
-      } else {
-        let refValue;
-        if (typeof reference === "string") {
-          refValue = reference;
-        } else {
-          refValue = interpretExpression(reference, environment);
-        }
-
-        try {
-          return func(refValue, code1, code2);
-        } catch (e) {
-          if (e instanceof Error) {
-            e.message += ` (caused while evaluating double-qualifier reference function "${functionName})"`;
-          }
-
-          throw e;
-        }
-      }
-    }
+    return interpretRefFunctionCall(expression, environment);
   } else if (expression instanceof AstUnaryOp) {
     switch (expression.operator) {
       case "-":
@@ -245,6 +125,162 @@ function interpretExpression(expression, environment) {
   throw new D2CalcInternalError(
     `Unknown expression type: ${expression.constructor.name}`
   );
+}
+
+/**
+ * @param {InstanceType<AstBinaryOp>} expression
+ * @param {InterpreterEnvironment} environment
+ * @return {number}
+ */
+function interpretBinaryOp(expression, environment) {
+  const leftValue = interpretExpression(expression.left, environment);
+  const rightValue = interpretExpression(expression.right, environment);
+
+  switch (expression.operator) {
+    case "+":
+      return leftValue + rightValue;
+    case "-":
+      return leftValue - rightValue;
+    case "*":
+      return leftValue * rightValue;
+    case "/":
+      if (rightValue === 0) {
+        return 0;
+      } else {
+        return Math.trunc(leftValue / rightValue);
+      }
+    case "==":
+      return leftValue === rightValue ? 1 : 0;
+    case "!=":
+      return leftValue !== rightValue ? 1 : 0;
+    case "<":
+      return leftValue < rightValue ? 1 : 0;
+    case ">":
+      return leftValue > rightValue ? 1 : 0;
+    case "<=":
+      return leftValue <= rightValue ? 1 : 0;
+    case ">=":
+      return leftValue >= rightValue ? 1 : 0;
+    default:
+      throw new D2CalcInternalError(
+        `Unknown operator: "${expression.operator}"`
+      );
+  }
+}
+
+/**
+ * @param {InstanceType<AstFunctionCall>} expression
+ * @param {InterpreterEnvironment} environment
+ * @return {number}
+ */
+function interpretFunctionCall(expression, environment) {
+  const { functionName, arg1, arg2 } = expression;
+  const { functions = {} } = environment;
+  const func = functions[functionName];
+
+  if (func == undefined) {
+    throw new D2FInterpreterError(`Unknown function: ${functionName}`);
+  } else {
+    const argValue1 = interpretExpression(arg1, environment);
+    const argValue2 = interpretExpression(arg2, environment);
+
+    try {
+      return func(argValue1, argValue2);
+    } catch (e) {
+      if (e instanceof Error) {
+        e.message += ` (caused while calling function "${functionName})"`;
+      }
+      throw e;
+    }
+  }
+}
+
+/**
+ * @param {InstanceType<AstIdentifier>} expression
+ * @param {InterpreterEnvironment} environment
+ * @return {number}
+ */
+function interpretIdentifier(expression, environment) {
+  const { identifiers = {} } = environment;
+  const identifier = identifiers[expression.name];
+
+  if (identifier == undefined) {
+    throw new D2FInterpreterError(`Unknown identifier: ${expression.name}`);
+  } else if (typeof identifier === "number") {
+    return identifier;
+  } else {
+    try {
+      return identifier();
+    } catch (e) {
+      if (e instanceof Error) {
+        e.message += ` (caused while evaluating identifier "${expression.name})"`;
+      }
+      throw e;
+    }
+  }
+}
+
+/**
+ * @param {InstanceType<AstRefFunctionCall>} expression
+ * @param {InterpreterEnvironment} environment
+ * @return {number}
+ */
+function interpretRefFunctionCall(expression, environment) {
+  const { functionName, reference, code1, code2 } = expression;
+
+  if (code2 == null) {
+    const { referenceFunctions = {} } = environment;
+    const func = referenceFunctions[functionName];
+
+    if (func == undefined) {
+      throw new D2FInterpreterError(
+        `Unknown single-qualifier reference function: ${functionName}`
+      );
+    } else {
+      let refValue;
+      if (typeof reference === "string") {
+        refValue = reference;
+      } else {
+        refValue = interpretExpression(reference, environment);
+      }
+
+      try {
+        return func(refValue, code1);
+      } catch (e) {
+        if (e instanceof Error) {
+          e.message += ` (caused while evaluating single-qualifier reference function "${functionName})"`;
+        }
+
+        throw e;
+      }
+    }
+  } else {
+    const { referenceFunctions2Q = {} } = environment;
+    const func = referenceFunctions2Q[functionName];
+
+    if (func == undefined) {
+      throw new D2FInterpreterError(
+        `Unknown double-qualifier reference function: ${functionName}`
+      );
+    } else {
+      let refValue;
+      if (typeof reference === "string") {
+        refValue = reference;
+      } else {
+        refValue = interpretExpression(reference, environment);
+      }
+
+      try {
+        return func(refValue, code1, code2);
+      } catch (e) {
+        if (e instanceof Error) {
+          e.message += ` (caused while evaluating double-qualifier reference function "${functionName})"`;
+        }
+
+        throw e;
+      }
+    }
+  }
 }
 
 module.exports = interpret;
