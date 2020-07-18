@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "description": "Interpreter for the mini-language used internally by Diablo 2",
   "type": "module",
-  "main": "./dist/d2calc.umd.cjs",
+  "main": "./dist/d2calc.umd.js",
   "module": "index.js",
   "exports": {
     "import": "./index.js",
@@ -40,6 +40,6 @@
     "rollup-plugin-terser": "^6.1.0"
   },
   "engines": {
-    "node": ">=12.11.0"
+    "node": ">=10"
   }
 }

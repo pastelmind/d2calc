@@ -12,6 +12,9 @@ For convenience, we will refer to this language as **D2F**.
 
 ## Installing
 
+d2calc requires Node.js 12 or above. It _should_ be possible to use it in
+Node.js 10.x, but no guarantees are given.
+
 For use in Node.js:
 
 ```sh
