@@ -27,7 +27,8 @@
   ],
   "devDependencies": {
     "mocha": "^8.0.1",
-    "rollup": "^2.22.0"
+    "rollup": "^2.22.0",
+    "rollup-plugin-terser": "^6.1.0"
   },
   "engines": {
     "node": ">=12.11.0"
