@@ -5,6 +5,9 @@
   "type": "module",
   "main": "index.js",
   "scripts": {
+    "build": "rollup --config",
+    "clean": "rm -f ./dist/*",
+    "prepare": "npm run build",
     "test": "mocha --experimental-modules"
   },
   "repository": {
