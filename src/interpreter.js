@@ -36,21 +36,17 @@ import { D2CalcInternalError, D2FInterpreterError } from "./errors.js";
  */
 
 /**
- * @typedef {object} InterpreterEnvironmentBase Interpreter environment object
- * @property {{[name: string]: IdentifierFunction | number}} identifiers
+ * @typedef {object} InterpreterEnvironment Interpreter environment object
+ * @property {{[name: string]: IdentifierFunction | number}=} identifiers
  *    Identifiers available in the environment.
  *    If a number is given, it is used directly as the identifier's value.
  *    If a function is given, its return value is used.
- * @property {{[name: string]: NumericFunction}} functions
+ * @property {{[name: string]: NumericFunction}=} functions
  *    Numeric functions available in the environment.
- * @property {{[name: string]: ReferenceFunction}} referenceFunctions
+ * @property {{[name: string]: ReferenceFunction}=} referenceFunctions
  *    Single-qualifier reference functions available in the environment.
- * @property {{[name: string]: ReferenceFunction2Q}} referenceFunctions2Q
+ * @property {{[name: string]: ReferenceFunction2Q}=} referenceFunctions2Q
  *    Double-qualifier reference functions available in the environment.
- */
-
-/**
- * @typedef {Partial<InterpreterEnvironmentBase>} InterpreterEnvironment
  */
 
 /**
