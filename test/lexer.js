@@ -11,9 +11,12 @@ import tokenize, {
   OperatorToken,
   QuestionMarkToken,
   ReferenceToken,
-  Token,
 } from "../src/lexer.js";
 import { D2FSyntaxError } from "../src/errors.js";
+
+/**
+ * @typedef {import("../src/lexer.js").Token} Token
+ */
 
 /**
  * Verifies that the given code is tokenized to the given token sequence.
