@@ -26,6 +26,7 @@
   },
   "homepage": "https://github.com/pastelmind/d2calc#readme",
   "files": [
+    "dist/",
     "src/"
   ],
   "devDependencies": {
