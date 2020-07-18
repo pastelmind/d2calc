@@ -11,4 +11,8 @@
     "editor.defaultFormatter": "vscode.json-language-features",
     "editor.formatOnSave": true,
   },
+  "[yaml]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true,
+  },
 }
