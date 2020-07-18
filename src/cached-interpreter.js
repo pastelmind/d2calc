@@ -14,7 +14,7 @@ import parse from "./parser.js";
  *
  * To "delete" the cache, simply delete the CachedInterpreter object.
  */
-export default class CachedInterpreter {
+export class CachedInterpreter {
   constructor() {
     /**
      * @type {{ [text: string]: AstExpression }}
