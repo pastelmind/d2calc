@@ -9,9 +9,12 @@ import tokenize, {
   OperatorToken,
   QuestionMarkToken,
   ReferenceToken,
-  Token,
 } from "./lexer.js";
 import { D2CalcInternalError, D2FSyntaxError } from "./errors.js";
+
+/**
+ * @typedef {import("./lexer.js").Token} Token
+ */
 
 /**
  * Parses the given string.

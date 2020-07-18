@@ -3,7 +3,7 @@ import { strict as assert } from "assert";
 import interpret from "../src/interpreter.js";
 
 /**
- * @typedef {import('../src/interpreter.js').InterpreterEnvironment} InterpreterEnvironment
+ * @typedef {import("../src/interpreter.js").InterpreterEnvironment} InterpreterEnvironment
  */
 
 /**

@@ -1,20 +1,16 @@
-import parse, {
-  AstBinaryOp,
-  AstConditional,
-  AstFunctionCall,
-  AstIdentifier,
-  AstNumber,
-  AstRefFunctionCall,
-  AstUnaryOp,
-} from "./parser.js";
-import {
-  D2CalcInternalError,
-  D2FInterpreterError,
-  D2FSyntaxError,
-} from "./errors.js";
+import parse from "./parser.js";
+import { D2CalcInternalError, D2FInterpreterError } from "./errors.js";
 
 /**
- * @typedef {import('./parser.js').AstExpression} AstExpression
+ * @typedef {import("./errors.js").D2FSyntaxError} D2FSyntaxError
+ * @typedef {import("./parser.js").AstBinaryOp} AstBinaryOp
+ * @typedef {import("./parser.js").AstConditional} AstConditional
+ * @typedef {import("./parser.js").AstExpression} AstExpression
+ * @typedef {import("./parser.js").AstFunctionCall} AstFunctionCall
+ * @typedef {import("./parser.js").AstIdentifier} AstIdentifier
+ * @typedef {import("./parser.js").AstNumber} AstNumber
+ * @typedef {import("./parser.js").AstRefFunctionCall} AstRefFunctionCall
+ * @typedef {import("./parser.js").AstUnaryOp} AstUnaryOp
  */
 
 /**
