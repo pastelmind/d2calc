@@ -26,7 +26,8 @@
     "src/"
   ],
   "devDependencies": {
-    "mocha": "^8.0.1"
+    "mocha": "^8.0.1",
+    "rollup": "^2.22.0"
   },
   "engines": {
     "node": ">=12.11.0"
