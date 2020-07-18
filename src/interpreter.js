@@ -80,7 +80,7 @@ export default function interpret(text, environment = {}) {
  * @throws {D2FInterpreterError} If the code is syntactically valid, but an
  *    error occurs while interpreting the result
  */
-function interpretExpression(expression, environment) {
+export function interpretExpression(expression, environment) {
   switch (expression.type) {
     case "AstBinaryOp":
       return interpretBinaryOp(expression, environment);
