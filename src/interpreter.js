@@ -1,13 +1,4 @@
-"use strict";
-
-const parse = require("./parser");
-const {
-  D2CalcInternalError,
-  D2FInterpreterError,
-  D2FSyntaxError,
-} = require("./errors.js");
-
-const {
+import parse, {
   AstBinaryOp,
   AstConditional,
   AstFunctionCall,
@@ -15,7 +6,12 @@ const {
   AstNumber,
   AstRefFunctionCall,
   AstUnaryOp,
-} = parse;
+} from "./parser.js";
+import {
+  D2CalcInternalError,
+  D2FInterpreterError,
+  D2FSyntaxError,
+} from "./errors.js";
 
 /**
  * @typedef {import('./parser.js').AstExpression} AstExpression
@@ -76,7 +72,7 @@ const {
  * @throws {D2FInterpreterError} If the code is syntactically valid, but an
  *    error occurs while interpreting the result
  */
-function interpret(text, environment = {}) {
+export default function interpret(text, environment = {}) {
   const expression = parse(text);
   return interpretExpression(expression, environment);
 }
@@ -146,7 +142,7 @@ function assertUnhandledExpressionType(e) {
 }
 
 /**
- * @param {InstanceType<AstBinaryOp>} expression
+ * @param {AstBinaryOp} expression
  * @param {InterpreterEnvironment} environment
  * @return {number}
  */
@@ -187,7 +183,7 @@ function interpretBinaryOp(expression, environment) {
 }
 
 /**
- * @param {InstanceType<AstFunctionCall>} expression
+ * @param {AstFunctionCall} expression
  * @param {InterpreterEnvironment} environment
  * @return {number}
  */
@@ -214,7 +210,7 @@ function interpretFunctionCall(expression, environment) {
 }
 
 /**
- * @param {InstanceType<AstIdentifier>} expression
+ * @param {AstIdentifier} expression
  * @param {InterpreterEnvironment} environment
  * @return {number}
  */
@@ -239,7 +235,7 @@ function interpretIdentifier(expression, environment) {
 }
 
 /**
- * @param {InstanceType<AstRefFunctionCall>} expression
+ * @param {AstRefFunctionCall} expression
  * @param {InterpreterEnvironment} environment
  * @return {number}
  */
@@ -300,5 +296,3 @@ function interpretRefFunctionCall(expression, environment) {
     }
   }
 }
-
-module.exports = interpret;

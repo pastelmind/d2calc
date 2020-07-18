@@ -1,14 +1,6 @@
-"use strict";
+import { strict as assert } from "assert";
 
-// Explicit type annotation is needed to suppress TypeScript error.
-// See https://stackoverflow.com/a/59229771/ for more information.
-/** @type {typeof import("assert").strict} */
-const assert = require("assert").strict;
-
-const tokenize = require("../src/lexer.js");
-const { D2FSyntaxError } = require("../src/errors.js");
-
-const {
+import tokenize, {
   ClosingParenthesisToken,
   ColonToken,
   CommaToken,
@@ -20,14 +12,15 @@ const {
   QuestionMarkToken,
   ReferenceToken,
   Token,
-} = tokenize;
+} from "../src/lexer.js";
+import { D2FSyntaxError } from "../src/errors.js";
 
 /**
  * Verifies that the given code is tokenized to the given token sequence.
  * Helper method for running Mocha tests.
  *
  * @param {string} code
- * @param {InstanceType<Token>[]} tokens
+ * @param {Token[]} tokens
  */
 function itTokenizesTo(code, tokens) {
   it(`Test "${code}"`, () => {

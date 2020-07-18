@@ -1,11 +1,6 @@
-"use strict";
+import { strict as assert } from "assert";
 
-// Explicit type annotation is needed to suppress TypeScript error.
-// See https://stackoverflow.com/a/59229771/ for more information.
-/** @type {typeof import("assert").strict} */
-const assert = require("assert").strict;
-
-const interpret = require("../src/interpreter.js");
+import interpret from "../src/interpreter.js";
 
 /**
  * @typedef {import('../src/interpreter.js').InterpreterEnvironment} InterpreterEnvironment
