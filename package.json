@@ -12,6 +12,7 @@
   "scripts": {
     "build": "rollup --config",
     "clean": "rm -f ./dist/*",
+    "lint": "eslint .",
     "prepare": "npm run build",
     "test": "mocha --experimental-modules"
   },
