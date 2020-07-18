@@ -3,8 +3,12 @@
   "version": "0.0.1",
   "description": "Interpreter for the mini-language used internally by Diablo 2",
   "type": "module",
-  "main": "index.js",
+  "main": "./dist/d2calc.umd.cjs",
   "module": "index.js",
+  "exports": {
+    "import": "./index.js",
+    "require": "./dist/d2calc.umd.cjs"
+  },
   "scripts": {
     "build": "rollup --config",
     "clean": "rm -f ./dist/*",

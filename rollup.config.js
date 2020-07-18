@@ -2,7 +2,8 @@ import { terser } from "rollup-plugin-terser";
 import pkg from "./package.json";
 
 export default {
-  input: pkg.main,
+  // Use the ESM entrypoint script as the bundle input
+  input: pkg.exports.import,
   output: [
     {
       file: `dist/${pkg.name}.umd.cjs`,
