@@ -5,7 +5,7 @@ export default {
   input: pkg.main,
   output: [
     {
-      file: `dist/${pkg.name}.umd.js`,
+      file: `dist/${pkg.name}.umd.cjs`,
       format: "umd",
       name: pkg.name,
       plugins: terser({
