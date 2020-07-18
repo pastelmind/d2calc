@@ -1,6 +1,4 @@
-"use strict";
-
-const { D2FSyntaxError } = require("./errors.js");
+import { D2FSyntaxError } from "./errors.js";
 
 /**
  * Tokenizes the given string.
@@ -8,7 +6,7 @@ const { D2FSyntaxError } = require("./errors.js");
  * @param {string} text
  * @return {Token[]}
  */
-function tokenize(text) {
+export default function tokenize(text) {
   /** @type {Token[]} */
   const tokens = [];
 
@@ -162,7 +160,7 @@ function matchDotCode(text, index) {
 }
 
 /** Base class for tokens. */
-class Token {
+export class Token {
   /**
    * @param {number} position Position of the token in the original string
    * @param {string} rawValue Raw text of the token
@@ -180,7 +178,7 @@ class Token {
   }
 }
 
-class NumberToken extends Token {
+export class NumberToken extends Token {
   /**
    * @param {number} position Position of the token in the original string
    * @param {string} rawValue Raw text of the token
@@ -192,9 +190,9 @@ class NumberToken extends Token {
   }
 }
 
-class IdentifierToken extends Token {}
+export class IdentifierToken extends Token {}
 
-class ReferenceToken extends Token {
+export class ReferenceToken extends Token {
   /**
    * @param {number} position Position of the token in the original string
    * @param {string} rawValue Raw text of the token
@@ -206,7 +204,7 @@ class ReferenceToken extends Token {
   }
 }
 
-class OperatorToken extends Token {
+export class OperatorToken extends Token {
   /**
    * @param {number} position Position of the token in the original string
    * @param {"+" | "-" | "*" | "/" | "==" | "!=" | "<" | ">" | "<=" | ">="} operator
@@ -217,7 +215,7 @@ class OperatorToken extends Token {
   }
 }
 
-class OpeningParenthesisToken extends Token {
+export class OpeningParenthesisToken extends Token {
   /**
    * @param {number} position Position of the token in the original string
    */
@@ -225,7 +223,7 @@ class OpeningParenthesisToken extends Token {
     super(position, "(");
   }
 }
-class ClosingParenthesisToken extends Token {
+export class ClosingParenthesisToken extends Token {
   /**
    * @param {number} position Position of the token in the original string
    */
@@ -235,7 +233,7 @@ class ClosingParenthesisToken extends Token {
 }
 
 /** Token used by function call expressions */
-class CommaToken extends Token {
+export class CommaToken extends Token {
   /**
    * @param {number} position Position of the token in the original string
    */
@@ -245,7 +243,7 @@ class CommaToken extends Token {
 }
 
 /** Token used by reference function call expressions */
-class DotCodeToken extends Token {
+export class DotCodeToken extends Token {
   /**
    * @param {number} position Position of the token in the original string
    * @param {string} rawValue Raw text of the token
@@ -258,7 +256,7 @@ class DotCodeToken extends Token {
 }
 
 /** Token used by conditional expressions */
-class QuestionMarkToken extends Token {
+export class QuestionMarkToken extends Token {
   /**
    * @param {number} position Position of the token in the original string
    */
@@ -268,7 +266,7 @@ class QuestionMarkToken extends Token {
 }
 
 /** Token used by conditional expressions */
-class ColonToken extends Token {
+export class ColonToken extends Token {
   /**
    * @param {number} position Position of the token in the original string
    */
@@ -276,16 +274,3 @@ class ColonToken extends Token {
     super(position, ":");
   }
 }
-
-module.exports = tokenize;
-module.exports.Token = Token;
-module.exports.NumberToken = NumberToken;
-module.exports.IdentifierToken = IdentifierToken;
-module.exports.ReferenceToken = ReferenceToken;
-module.exports.OperatorToken = OperatorToken;
-module.exports.OpeningParenthesisToken = OpeningParenthesisToken;
-module.exports.ClosingParenthesisToken = ClosingParenthesisToken;
-module.exports.CommaToken = CommaToken;
-module.exports.DotCodeToken = DotCodeToken;
-module.exports.QuestionMarkToken = QuestionMarkToken;
-module.exports.ColonToken = ColonToken;

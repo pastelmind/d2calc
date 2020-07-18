@@ -1,9 +1,4 @@
-"use strict";
-
-const tokenize = require("./lexer.js");
-const { D2CalcInternalError, D2FSyntaxError } = require("../src/errors.js");
-
-const {
+import tokenize, {
   ClosingParenthesisToken,
   ColonToken,
   CommaToken,
@@ -15,7 +10,8 @@ const {
   QuestionMarkToken,
   ReferenceToken,
   Token,
-} = tokenize;
+} from "./lexer.js";
+import { D2CalcInternalError, D2FSyntaxError } from "./errors.js";
 
 /**
  * Parses the given string.
@@ -24,7 +20,7 @@ const {
  * @return {AstExpression}
  * @throws {D2FSyntaxError} If the expression is malformed.
  */
-function parse(text) {
+export default function parse(text) {
   const tokens = tokenize(text);
   const tokenStream = new TokenStream(tokens);
   const expression = parseExpression(tokenStream);
@@ -187,7 +183,7 @@ function parsePrimaryExpression(tokenStream) {
  * returns an `AstIdentifier` instead.
  *
  * @param {TokenStream} tokenStream
- * @param {InstanceType<IdentifierToken>} identifierToken Identifier token for
+ * @param {IdentifierToken} identifierToken Identifier token for
  *    the function name
  * @return {AstFunctionCall | AstRefFunctionCall | AstIdentifier}
  * @throws {D2FSyntaxError} If an expression is malformed.
@@ -280,7 +276,7 @@ function parseFunctionCallArgumentList(tokenStream, identifierToken) {
  * exists), as well as the closing parenthesis (`)`).
  *
  * @param {TokenStream} tokenStream
- * @param {InstanceType<IdentifierToken>} identifier
+ * @param {IdentifierToken} identifier
  *    Identifier token for the reference function name
  * @param {string | AstExpression} ref
  *    First argument for the reference function
@@ -324,7 +320,7 @@ function finishParsingReferenceCall(tokenStream, identifier, ref, dotCode1) {
 /**
  * Asserts that `token` is not an end-of-input token.
  *
- * @param {InstanceType<Token> | undefined} token
+ * @param {Token | undefined} token
  * @param {string=} extraMessage String to append to the default error message
  * @return {asserts token}
  * @throws {D2FSyntaxError} If `token` is an end-of-input token
@@ -345,8 +341,8 @@ function assertIsNotEndOfInput(token, extraMessage = "") {
 /**
  * Asserts that `token` is an instance of `tokenConstructor`.
  *
- * @param {InstanceType<Token> | undefined} token
- * @template {InstanceType<Token>} T
+ * @param {Token | undefined} token
+ * @template {Token} T
  * @param {Constructor<T>} tokenConstructor
  * @param {string=} extraMessage String to append to the default error message
  * @return {asserts token is T}
@@ -367,7 +363,7 @@ function assertTokenIsInstanceOf(token, tokenConstructor, extraMessage = "") {
  */
 class TokenStream {
   /**
-   * @param {InstanceType<Token>[]} tokens Array of tokens
+   * @param {Token[]} tokens Array of tokens
    */
   constructor(tokens) {
     /** @private */
@@ -380,7 +376,7 @@ class TokenStream {
    * Returns the next token object in the stream, or `undefined` if the stream
    * contains no more tokens.
    *
-   * @return {IteratorResult<InstanceType<Token>, undefined>}
+   * @return {IteratorResult<Token, undefined>}
    */
   next() {
     const value = this.tokens_[this.currentIndex_];
@@ -396,7 +392,7 @@ class TokenStream {
    * Returns the next token object in the stream, or `undefined` if the stream
    * contains no more tokens.
    *
-   * @return {InstanceType<Token> | undefined}
+   * @return {Token | undefined}
    */
   peek() {
     return this.tokens_[this.currentIndex_];
@@ -408,7 +404,7 @@ class TokenStream {
  * @typedef {AstBinaryOp | AstUnaryOp | AstConditional | AstNumber | AstIdentifier | AstFunctionCall | AstRefFunctionCall} AstExpression
  */
 
-class AstBinaryOp {
+export class AstBinaryOp {
   /**
    * @param {"+" | "-" | "*" | "/" | "==" | "!=" | "<" | ">" | "<=" | ">="} operator
    * @param {AstExpression} left Left side expression
@@ -423,7 +419,7 @@ class AstBinaryOp {
   }
 }
 
-class AstUnaryOp {
+export class AstUnaryOp {
   /**
    * @param {"-"} operator Unary operator
    * @param {AstExpression} expression Expression to apply the operator
@@ -436,7 +432,7 @@ class AstUnaryOp {
   }
 }
 
-class AstConditional {
+export class AstConditional {
   /**
    * @param {AstExpression} condition
    * @param {AstExpression} trueExpression Expression to evaluate if condition is true (non-zero)
@@ -456,9 +452,9 @@ class AstConditional {
  * _except_ the Parenthesized Expression (`"(" expr ")"`).
  * This class is needed by the parser.
  */
-class AstIntegralExpression {}
+export class AstIntegralExpression {}
 
-class AstNumber extends AstIntegralExpression {
+export class AstNumber extends AstIntegralExpression {
   /**
    * @param {number} value Must be a nonnegative number
    */
@@ -470,7 +466,7 @@ class AstNumber extends AstIntegralExpression {
   }
 }
 
-class AstIdentifier extends AstIntegralExpression {
+export class AstIdentifier extends AstIntegralExpression {
   /**
    * @param {string} name
    */
@@ -482,7 +478,7 @@ class AstIdentifier extends AstIntegralExpression {
   }
 }
 
-class AstFunctionCall extends AstIntegralExpression {
+export class AstFunctionCall extends AstIntegralExpression {
   /**
    * @param {string} functionName
    * @param {AstExpression} arg1
@@ -498,7 +494,7 @@ class AstFunctionCall extends AstIntegralExpression {
   }
 }
 
-class AstRefFunctionCall extends AstIntegralExpression {
+export class AstRefFunctionCall extends AstIntegralExpression {
   /**
    * @param {string} functionName
    * @param {string | AstExpression} reference
@@ -515,13 +511,3 @@ class AstRefFunctionCall extends AstIntegralExpression {
     this.code2 = code2;
   }
 }
-
-module.exports = parse;
-module.exports.AstNumber = AstNumber;
-module.exports.AstBinaryOp = AstBinaryOp;
-module.exports.AstUnaryOp = AstUnaryOp;
-module.exports.AstConditional = AstConditional;
-module.exports.AstIntegralExpression = AstIntegralExpression;
-module.exports.AstIdentifier = AstIdentifier;
-module.exports.AstFunctionCall = AstFunctionCall;
-module.exports.AstRefFunctionCall = AstRefFunctionCall;

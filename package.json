@@ -2,9 +2,10 @@
   "name": "d2calc",
   "version": "0.0.1",
   "description": "Interpreter for the mini-language used internally by Diablo 2",
+  "type": "module",
   "main": "index.js",
   "scripts": {
-    "test": "mocha"
+    "test": "mocha --experimental-modules"
   },
   "repository": {
     "type": "git",
@@ -26,5 +27,8 @@
   ],
   "devDependencies": {
     "mocha": "^8.0.1"
+  },
+  "engines": {
+    "node": ">=12.11.0"
   }
 }

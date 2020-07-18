@@ -1,16 +1,6 @@
-"use strict";
+import { strict as assert } from "assert";
 
-// Explicit type annotation is needed to suppress TypeScript error.
-// See https://stackoverflow.com/a/59229771/ for more information.
-/** @type {typeof import("assert").strict} */
-const assert = require("assert").strict;
-
-const parse = require("../src/parser.js");
-const { D2FSyntaxError } = require("../src/errors.js");
-
-/** @typedef {ReturnType<parse>} AstExpression */
-
-const {
+import parse, {
   AstBinaryOp,
   AstConditional,
   AstFunctionCall,
@@ -18,7 +8,10 @@ const {
   AstNumber,
   AstRefFunctionCall,
   AstUnaryOp,
-} = parse;
+} from "../src/parser.js";
+import { D2FSyntaxError } from "../src/errors.js";
+
+/** @typedef {import("../src/parser.js").AstExpression} AstExpression */
 
 /**
  * Verifies that the given code matches the given AST.
