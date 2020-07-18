@@ -2,6 +2,7 @@
   "compilerOptions": {
     "checkJs": true,
     "moduleResolution": "node",
+    "resolveJsonModule": true,
     "strict": true,
     "target": "es2015",
   },
