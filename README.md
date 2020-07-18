@@ -57,6 +57,17 @@ const environment = {
 const result = interpret("min(lvl * 2560, stat('hp'.accr))", environment);
 ```
 
+d2calc also provides a `CachedInterpreter` class. This class caches the
+intermediate result of parsing the code. When the same code is interpreted
+later, it skips the parsing process, speeding up the result significantly.
+
+```js
+const { CachedInterpreter } = require('d2calc');
+const interpreter = new CachedInterpreter();
+
+const result = interpreter.interpret("-(125 + 12 * 3 - 2) / 3");
+```
+
 d2calc can also be imported inside ECMAScript modules:
 
 ```js
@@ -145,6 +156,21 @@ Each reference function must take two arguments: a reference (`string` or
 An object that maps each function name to a double-qualifier reference function.
 Each reference function must take three arguments: a reference (`string` or
 `number`), and two qualifier codes (`string`). It must return a number.
+
+### `CachedInterpreter`
+
+A class that caches the abstract syntax tree (AST) of the code it interprets.
+When the same code is interpreted again, it will use the cached AST instead.
+Note that return values of identifiers and functions in the `environment` are
+NOT cached.
+
+To free the memory used by the cache, simply delete the interpreter object.
+
+#### `CachedInterpreter.interpret(code[, environment]) => number`
+
+See [`interpret()`] for details.
+
+[`interpret()`]: #interpretcode-environment--number
 
 ### Exceptions
 
