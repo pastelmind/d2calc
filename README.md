@@ -10,19 +10,32 @@ For convenience, we will refer to this language as **D2F**.
 [Diablo 2]: https://en.wikipedia.org/wiki/Diablo_II
 [tab-separated values]: https://en.wikipedia.org/wiki/Tab-separated_values
 
+## Installing
+
+For use in Node.js:
+
+```sh
+npm install d2calc
+```
+
+For use in web browsers, minified versions are also available in UMD and ESM
+formats. Check out the [Releases] page for details.
+
+[Releases]: https://github.com/pastelmind/d2calc/releases/
+
 ## Usage
 
-d2calc exports a single function named `interpret()`. It can be used like this:
+d2calc exports a function named `interpret()`. It can be used like this:
 
 ```js
-const interpret = require('d2calc');
+const { interpret } = require('d2calc');
 const result = interpret("4 * (-2 + 25)"); // 92
 ```
 
 Or, with a custom environment object:
 
 ```js
-const interpret = require('d2calc');
+const { interpret } = require('d2calc');
 const environment = {
   identifiers: {
     lvl: 3,
@@ -39,6 +52,17 @@ const environment = {
 
 // Calls the stat() and max() functions in the environment
 const result = interpret("min(lvl * 2560, stat('hp'.accr))", environment);
+```
+
+d2calc can also be imported inside ECMAScript modules:
+
+```js
+// In Node.js >= 12.x, inside an ECMAScript module:
+import { interpret } from 'd2calc';
+
+// In Node.js <= 10.x, inside an ECMAScript module:
+import d2calc from 'd2calc';
+const { interpret } = d2calc;
 ```
 
 ## API Reference
@@ -126,9 +150,6 @@ exception class can be imported like this:
 
 ```js
 const { D2FSyntaxError, D2FInterpreterError } = require('d2calc');
-// Alternative
-const interpret = require('d2calc');
-const { D2FSyntaxError, D2FInterpreterError } = interpret;
 ```
 
 The exception hierarchy:

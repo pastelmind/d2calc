@@ -3,8 +3,16 @@
   "version": "0.0.1",
   "description": "Interpreter for the mini-language used internally by Diablo 2",
   "type": "module",
-  "main": "index.js",
+  "main": "./dist/d2calc.umd.cjs",
+  "module": "index.js",
+  "exports": {
+    "import": "./index.js",
+    "require": "./dist/d2calc.umd.cjs"
+  },
   "scripts": {
+    "build": "rollup --config",
+    "clean": "rm -f ./dist/*",
+    "prepare": "npm run build",
     "test": "mocha --experimental-modules"
   },
   "repository": {
@@ -23,10 +31,13 @@
   },
   "homepage": "https://github.com/pastelmind/d2calc#readme",
   "files": [
+    "dist/",
     "src/"
   ],
   "devDependencies": {
-    "mocha": "^8.0.1"
+    "mocha": "^8.0.1",
+    "rollup": "^2.22.0",
+    "rollup-plugin-terser": "^6.1.0"
   },
   "engines": {
     "node": ">=12.11.0"
