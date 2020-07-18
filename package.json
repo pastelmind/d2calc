@@ -4,6 +4,7 @@
   "description": "Interpreter for the mini-language used internally by Diablo 2",
   "type": "module",
   "main": "index.js",
+  "module": "index.js",
   "scripts": {
     "build": "rollup --config",
     "clean": "rm -f ./dist/*",
