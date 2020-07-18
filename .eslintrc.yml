@@ -3,6 +3,8 @@ env:
   es6: true
   node: true
 extends: "eslint:recommended"
+ignorePatterns:
+  - "dist/*"
 parserOptions:
   ecmaVersion: 6
   sourceType: module
