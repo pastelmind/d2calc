@@ -9,6 +9,7 @@
     "import": "./index.js",
     "require": "./dist/d2calc.umd.cjs"
   },
+  "types": "./dist/index.d.ts",
   "scripts": {
     "build": "rollup --config",
     "clean": "rm -rf ./dist/*",
