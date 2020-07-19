@@ -36,6 +36,7 @@
     "src/"
   ],
   "devDependencies": {
+    "@types/mocha": "^8.0.0",
     "@types/node": "^12.12.50",
     "eslint": "^7.4.0",
     "mocha": "^8.0.1",
