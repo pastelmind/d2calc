@@ -1,0 +1,17 @@
+{
+  // This config file is used to emit type definition files (*.d.ts) for the
+  // entrypoint (index.js).
+  // To emit the type definitions, run:
+  //    npx tsc
+  "compilerOptions": {
+    "declaration": true,
+    "declarationMap": true,
+    "emitDeclarationOnly": true,
+    "noEmit": false,
+    "outDir": "dist/",
+  },
+  "extends": "./jsconfig.json",
+  "files": [
+    "index.js",
+  ],
+}
