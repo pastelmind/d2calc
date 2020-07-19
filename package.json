@@ -11,9 +11,9 @@
   },
   "types": "./dist/index.d.ts",
   "scripts": {
-    "build": "rollup --config",
+    "build": "rollup --config && tsc",
     "clean": "rm -rf ./dist/*",
-    "lint": "eslint .",
+    "lint": "eslint . && tsc -p jsconfig.json",
     "prepare": "npm run build",
     "test": "mocha --experimental-modules"
   },
