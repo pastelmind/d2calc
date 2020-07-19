@@ -9,10 +9,11 @@
     "import": "./index.js",
     "require": "./dist/d2calc.umd.cjs"
   },
+  "types": "./dist/index.d.ts",
   "scripts": {
-    "build": "rollup --config",
+    "build": "rollup --config && tsc",
     "clean": "rm -rf ./dist/*",
-    "lint": "eslint .",
+    "lint": "eslint . && tsc -p jsconfig.json",
     "prepare": "npm run build",
     "test": "mocha --experimental-modules"
   },
@@ -36,10 +37,13 @@
     "src/"
   ],
   "devDependencies": {
+    "@types/mocha": "^8.0.0",
+    "@types/node": "^12.12.50",
     "eslint": "^7.4.0",
     "mocha": "^8.0.1",
     "rollup": "^2.22.0",
-    "rollup-plugin-terser": "^6.1.0"
+    "rollup-plugin-terser": "^6.1.0",
+    "typescript": "^3.9.7"
   },
   "engines": {
     "node": ">=10"

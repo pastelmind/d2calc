@@ -1,4 +1,8 @@
 {
+  // This config file is used to type check all JS code in this project,
+  // including tests. It also controls the TypeScript service in VS Code.
+  // To type check the entire project, run:
+  //    npx tsc -p jsconfig.json
   "compilerOptions": {
     "checkJs": true,
     "moduleResolution": "node",
@@ -6,4 +10,7 @@
     "strict": true,
     "target": "es2015",
   },
+  "exclude": [
+    "dist/",
+  ],
 }
