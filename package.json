@@ -1,6 +1,6 @@
 {
   "name": "d2calc",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Interpreter for the mini-language used internally by Diablo 2",
   "type": "module",
   "main": "./dist/d2calc.umd.js",
