@@ -10,8 +10,23 @@ import parse, {
   AstUnaryOp,
 } from "../src/parser.js";
 import { D2FSyntaxError } from "../src/errors.js";
+import { isInt32 } from "../src/int32.js";
 
-/** @typedef {import("../src/parser.js").AstExpression} AstExpression */
+/**
+ * @typedef {import("../src/int32.js").Int32} Int32
+ * @typedef {import("../src/parser.js").AstExpression} AstExpression
+ */
+
+/**
+ * Helper method that creates an AstNumber object from a number.
+ *
+ * @param {number} n
+ * @return {AstNumber}
+ */
+function makeAstNumber(n) {
+  assert.ok(isInt32(n), `Invalid test input: ${n} is not Int32`);
+  return new AstNumber(n);
+}
 
 /**
  * Verifies that the given code matches the given AST.
@@ -39,8 +54,8 @@ function itFailsParseWith(code, expectedError) {
 
 describe("parse()", () => {
   describe("should parse numbers correctly", () => {
-    itParsesTo("5", new AstNumber(5));
-    itParsesTo("494", new AstNumber(494));
+    itParsesTo("5", makeAstNumber(5));
+    itParsesTo("494", makeAstNumber(494));
   });
 
   describe("should parse identifiers correctly", () => {
@@ -51,15 +66,15 @@ describe("parse()", () => {
   describe("should parse binary operators correctly", () => {
     itParsesTo(
       "1 + 2",
-      new AstBinaryOp("+", new AstNumber(1), new AstNumber(2))
+      new AstBinaryOp("+", makeAstNumber(1), makeAstNumber(2))
     );
     itParsesTo(
       "len / 25",
-      new AstBinaryOp("/", new AstIdentifier("len"), new AstNumber(25))
+      new AstBinaryOp("/", new AstIdentifier("len"), makeAstNumber(25))
     );
     itParsesTo(
       "30 == blvl",
-      new AstBinaryOp("==", new AstNumber(30), new AstIdentifier("blvl"))
+      new AstBinaryOp("==", makeAstNumber(30), new AstIdentifier("blvl"))
     );
   });
 
@@ -68,8 +83,8 @@ describe("parse()", () => {
       "1 + 2 + 3",
       new AstBinaryOp(
         "+",
-        new AstBinaryOp("+", new AstNumber(1), new AstNumber(2)),
-        new AstNumber(3)
+        new AstBinaryOp("+", makeAstNumber(1), makeAstNumber(2)),
+        makeAstNumber(3)
       )
     );
     itParsesTo(
@@ -83,7 +98,7 @@ describe("parse()", () => {
             new AstIdentifier("par3"),
             new AstIdentifier("par2")
           ),
-          new AstNumber(25)
+          makeAstNumber(25)
         ),
         new AstIdentifier("clc1")
       )
@@ -92,8 +107,8 @@ describe("parse()", () => {
       "12 == 34 != 56",
       new AstBinaryOp(
         "!=",
-        new AstBinaryOp("==", new AstNumber(12), new AstNumber(34)),
-        new AstNumber(56)
+        new AstBinaryOp("==", makeAstNumber(12), makeAstNumber(34)),
+        makeAstNumber(56)
       )
     );
   });
@@ -103,26 +118,26 @@ describe("parse()", () => {
       "25 + 2 * 9",
       new AstBinaryOp(
         "+",
-        new AstNumber(25),
-        new AstBinaryOp("*", new AstNumber(2), new AstNumber(9))
+        makeAstNumber(25),
+        new AstBinaryOp("*", makeAstNumber(2), makeAstNumber(9))
       )
     );
     itParsesTo(
       "4 + value < 5 * 12 - 1",
       new AstBinaryOp(
         "<",
-        new AstBinaryOp("+", new AstNumber(4), new AstIdentifier("value")),
+        new AstBinaryOp("+", makeAstNumber(4), new AstIdentifier("value")),
         new AstBinaryOp(
           "-",
-          new AstBinaryOp("*", new AstNumber(5), new AstNumber(12)),
-          new AstNumber(1)
+          new AstBinaryOp("*", makeAstNumber(5), makeAstNumber(12)),
+          makeAstNumber(1)
         )
       )
     );
   });
 
   describe("should parse unary operators correctly", () => {
-    itParsesTo("-1", new AstUnaryOp("-", new AstNumber(1)));
+    itParsesTo("-1", new AstUnaryOp("-", makeAstNumber(1)));
     itParsesTo("- dm34", new AstUnaryOp("-", new AstIdentifier("dm34")));
   });
 
@@ -131,8 +146,8 @@ describe("parse()", () => {
       "-44 + - 9",
       new AstBinaryOp(
         "+",
-        new AstUnaryOp("-", new AstNumber(44)),
-        new AstUnaryOp("-", new AstNumber(9))
+        new AstUnaryOp("-", makeAstNumber(44)),
+        new AstUnaryOp("-", makeAstNumber(9))
       )
     );
     itParsesTo(
@@ -140,19 +155,19 @@ describe("parse()", () => {
       new AstBinaryOp(
         "<=",
         new AstUnaryOp("-", new AstIdentifier("elen")),
-        new AstUnaryOp("-", new AstNumber(34))
+        new AstUnaryOp("-", makeAstNumber(34))
       )
     );
   });
 
   describe("should parse parentheses correctly", () => {
-    itParsesTo("(4)", new AstNumber(4));
+    itParsesTo("(4)", makeAstNumber(4));
     itParsesTo(
       "(25 + 2) * 9",
       new AstBinaryOp(
         "*",
-        new AstBinaryOp("+", new AstNumber(25), new AstNumber(2)),
-        new AstNumber(9)
+        new AstBinaryOp("+", makeAstNumber(25), makeAstNumber(2)),
+        makeAstNumber(9)
       )
     );
     itParsesTo(
@@ -164,9 +179,9 @@ describe("parse()", () => {
           new AstBinaryOp(
             "+",
             new AstIdentifier("elen"),
-            new AstBinaryOp(">=", new AstNumber(1000), new AstNumber(999))
+            new AstBinaryOp(">=", makeAstNumber(1000), makeAstNumber(999))
           ),
-          new AstNumber(9)
+          makeAstNumber(9)
         )
       )
     );
@@ -177,8 +192,8 @@ describe("parse()", () => {
       "lvl ? 12 : 0",
       new AstConditional(
         new AstIdentifier("lvl"),
-        new AstNumber(12),
-        new AstNumber(0)
+        makeAstNumber(12),
+        makeAstNumber(0)
       )
     );
   });
@@ -188,12 +203,12 @@ describe("parse()", () => {
       "1 ? 2 : 3 ? 4 : 5",
       new AstConditional(
         new AstConditional(
-          new AstNumber(1),
-          new AstNumber(2),
-          new AstNumber(3)
+          makeAstNumber(1),
+          makeAstNumber(2),
+          makeAstNumber(3)
         ),
-        new AstNumber(4),
-        new AstNumber(5)
+        makeAstNumber(4),
+        makeAstNumber(5)
       )
     );
   });
@@ -208,16 +223,16 @@ describe("parse()", () => {
         new AstIdentifier("lvl"),
         new AstBinaryOp(
           "+",
-          new AstNumber(1),
+          makeAstNumber(1),
           new AstBinaryOp(
             "*",
-            new AstNumber(5),
+            makeAstNumber(5),
             new AstUnaryOp(
               "-",
               new AstConditional(
-                new AstNumber(3),
+                makeAstNumber(3),
                 new AstIdentifier("something"),
-                new AstNumber(0)
+                makeAstNumber(0)
               )
             )
           )
@@ -229,14 +244,14 @@ describe("parse()", () => {
       new AstBinaryOp(
         "<",
         new AstConditional(
-          new AstNumber(0),
-          new AstNumber(1),
-          new AstNumber(2)
+          makeAstNumber(0),
+          makeAstNumber(1),
+          makeAstNumber(2)
         ),
         new AstBinaryOp(
           "+",
-          new AstBinaryOp("*", new AstIdentifier("lvl"), new AstNumber(3)),
-          new AstNumber(4)
+          new AstBinaryOp("*", new AstIdentifier("lvl"), makeAstNumber(3)),
+          makeAstNumber(4)
         )
       )
     );
@@ -245,14 +260,14 @@ describe("parse()", () => {
   describe("should parse function calls correctly", () => {
     itParsesTo(
       "myfunc(2,4)",
-      new AstFunctionCall("myfunc", new AstNumber(2), new AstNumber(4))
+      new AstFunctionCall("myfunc", makeAstNumber(2), makeAstNumber(4))
     );
     itParsesTo(
       "max(5 * 2 , min(elen , 3))",
       new AstFunctionCall(
         "max",
-        new AstBinaryOp("*", new AstNumber(5), new AstNumber(2)),
-        new AstFunctionCall("min", new AstIdentifier("elen"), new AstNumber(3))
+        new AstBinaryOp("*", makeAstNumber(5), makeAstNumber(2)),
+        new AstFunctionCall("min", new AstIdentifier("elen"), makeAstNumber(3))
       )
     );
   });
@@ -264,7 +279,7 @@ describe("parse()", () => {
     );
     itParsesTo(
       "func(12.clc1)",
-      new AstRefFunctionCall("func", new AstNumber(12), "clc1", null)
+      new AstRefFunctionCall("func", makeAstNumber(12), "clc1", null)
     );
     itParsesTo(
       "func(foo.bar)",
@@ -274,7 +289,7 @@ describe("parse()", () => {
       "temp((5 == 3).woon)",
       new AstRefFunctionCall(
         "temp",
-        new AstBinaryOp("==", new AstNumber(5), new AstNumber(3)),
+        new AstBinaryOp("==", makeAstNumber(5), makeAstNumber(3)),
         "woon",
         null
       )

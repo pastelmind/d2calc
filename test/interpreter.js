@@ -178,6 +178,32 @@ describe("interpret()", () => {
     sinon.assert.calledOnceWithExactly(ref1_2q, "foo", "bar", "baz");
     sinon.assert.calledOnceWithExactly(ref2_2q, 4, "don", "key");
   });
+
+  describe("should handle integer overflow correctly", () => {
+    // Addition
+    itInterpretsTo("2147483647 + 1", {}, -2147483648);
+    itInterpretsTo("2147483647 + 2147483646", {}, -3);
+    itInterpretsTo("-2147483645 + -2147483644", {}, 7);
+    itInterpretsTo("-2147483643 + -6", {}, 2147483647);
+
+    // Subtraction
+    itInterpretsTo("2147483641 - -8", {}, -2147483647);
+    itInterpretsTo("2147483639 - -2147483638", {}, -19);
+    itInterpretsTo("-2147483637 - 2147483636", {}, 23);
+    itInterpretsTo("-2147483635 - 14", {}, 2147483647);
+
+    // Multiplication
+    itInterpretsTo("2147483647 * 2", {}, -2);
+    itInterpretsTo("2147483643 * -4", {}, 20);
+    itInterpretsTo("-6 * 2147483641", {}, 42);
+    itInterpretsTo("-5 * -2147483642", {}, 2147483618);
+    itInterpretsTo("2147483641 * 2147483641", {}, 49);
+
+    // Changing the sign of INT32_MIN
+    itInterpretsTo("-2147483648", {}, -2147483648);
+    itInterpretsTo("2147483648 * -1", {}, -2147483648);
+    itInterpretsTo("-1 * 2147483648", {}, -2147483648);
+  });
 });
 
 afterEach(() => {

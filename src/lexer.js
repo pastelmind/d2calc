@@ -2,6 +2,10 @@ import { D2FSyntaxError } from "./errors.js";
 import { parseInt32 } from "./int32.js";
 
 /**
+ * @typedef {import("./int32.js").Int32} Int32
+ */
+
+/**
  * Tokenizes the given string.
  *
  * @param {string} text
@@ -183,7 +187,7 @@ export class NumberToken extends Token {
   /**
    * @param {number} position Position of the token in the original string
    * @param {string} rawValue Raw text of the token
-   * @param {number} number Must be a nonnegative integer
+   * @param {Int32} number Parsed number
    */
   constructor(position, rawValue, number) {
     super(position, rawValue);

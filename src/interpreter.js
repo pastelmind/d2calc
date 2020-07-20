@@ -1,8 +1,10 @@
 import parse from "./parser.js";
 import { D2CalcInternalError, D2FInterpreterError } from "./errors.js";
+import { toInt32 } from "./int32.js";
 
 /**
  * @typedef {import("./errors.js").D2FSyntaxError} D2FSyntaxError
+ * @typedef {import("./int32.js").Int32} Int32
  * @typedef {import("./parser.js").AstBinaryOp} AstBinaryOp
  * @typedef {import("./parser.js").AstConditional} AstConditional
  * @typedef {import("./parser.js").AstExpression} AstExpression
@@ -75,7 +77,7 @@ export default function interpret(text, environment = {}) {
  * @param {AstExpression} expression
  * @param {InterpreterEnvironment} environment Environment to use when
  *    interpreting the expression
- * @return {number} Signed 32-bit integer
+ * @return {Int32} Signed 32-bit integer
  * @throws {D2FSyntaxError} If the code is syntactically invalid
  * @throws {D2FInterpreterError} If the code is syntactically valid, but an
  *    error occurs while interpreting the result
@@ -107,7 +109,9 @@ export function interpretExpression(expression, environment) {
     case "AstUnaryOp": {
       switch (expression.operator) {
         case "-":
-          return -interpretExpression(expression.expression, environment);
+          return toInt32(
+            -interpretExpression(expression.expression, environment)
+          );
         default:
           throw new D2CalcInternalError(
             `Unknown operator: "${expression.operator}"`
@@ -136,7 +140,7 @@ function assertUnhandledExpressionType(e) {
 /**
  * @param {AstBinaryOp} expression
  * @param {InterpreterEnvironment} environment
- * @return {number}
+ * @return {Int32}
  */
 function interpretBinaryOp(expression, environment) {
   const leftValue = interpretExpression(expression.left, environment);
@@ -144,29 +148,29 @@ function interpretBinaryOp(expression, environment) {
 
   switch (expression.operator) {
     case "+":
-      return leftValue + rightValue;
+      return toInt32(leftValue + rightValue);
     case "-":
-      return leftValue - rightValue;
+      return toInt32(leftValue - rightValue);
     case "*":
-      return leftValue * rightValue;
+      return /** @type {Int32} */ (Math.imul(leftValue, rightValue));
     case "/":
       if (rightValue === 0) {
-        return 0;
+        return /** @type {Int32} */ (0);
       } else {
-        return Math.trunc(leftValue / rightValue);
+        return /** @type {Int32} */ (Math.trunc(leftValue / rightValue));
       }
     case "==":
-      return leftValue === rightValue ? 1 : 0;
+      return /** @type {Int32} */ (leftValue === rightValue ? 1 : 0);
     case "!=":
-      return leftValue !== rightValue ? 1 : 0;
+      return /** @type {Int32} */ (leftValue !== rightValue ? 1 : 0);
     case "<":
-      return leftValue < rightValue ? 1 : 0;
+      return /** @type {Int32} */ (leftValue < rightValue ? 1 : 0);
     case ">":
-      return leftValue > rightValue ? 1 : 0;
+      return /** @type {Int32} */ (leftValue > rightValue ? 1 : 0);
     case "<=":
-      return leftValue <= rightValue ? 1 : 0;
+      return /** @type {Int32} */ (leftValue <= rightValue ? 1 : 0);
     case ">=":
-      return leftValue >= rightValue ? 1 : 0;
+      return /** @type {Int32} */ (leftValue >= rightValue ? 1 : 0);
     default:
       throw new D2CalcInternalError(
         `Unknown operator: "${expression.operator}"`
@@ -177,7 +181,7 @@ function interpretBinaryOp(expression, environment) {
 /**
  * @param {AstFunctionCall} expression
  * @param {InterpreterEnvironment} environment
- * @return {number}
+ * @return {Int32}
  */
 function interpretFunctionCall(expression, environment) {
   const { functionName, arg1, arg2 } = expression;
@@ -191,7 +195,7 @@ function interpretFunctionCall(expression, environment) {
     const argValue2 = interpretExpression(arg2, environment);
 
     try {
-      return func(argValue1, argValue2);
+      return toInt32(func(argValue1, argValue2));
     } catch (e) {
       if (e instanceof Error) {
         e.message += ` (caused while calling function "${functionName})"`;
@@ -204,7 +208,7 @@ function interpretFunctionCall(expression, environment) {
 /**
  * @param {AstIdentifier} expression
  * @param {InterpreterEnvironment} environment
- * @return {number}
+ * @return {Int32}
  */
 function interpretIdentifier(expression, environment) {
   const { identifiers = {} } = environment;
@@ -213,10 +217,10 @@ function interpretIdentifier(expression, environment) {
   if (identifier == undefined) {
     throw new D2FInterpreterError(`Unknown identifier: ${expression.name}`);
   } else if (typeof identifier === "number") {
-    return identifier;
+    return toInt32(identifier);
   } else {
     try {
-      return identifier();
+      return toInt32(identifier());
     } catch (e) {
       if (e instanceof Error) {
         e.message += ` (caused while evaluating identifier "${expression.name})"`;
@@ -229,7 +233,7 @@ function interpretIdentifier(expression, environment) {
 /**
  * @param {AstRefFunctionCall} expression
  * @param {InterpreterEnvironment} environment
- * @return {number}
+ * @return {Int32}
  */
 function interpretRefFunctionCall(expression, environment) {
   const { functionName, reference, code1, code2 } = expression;
@@ -251,7 +255,7 @@ function interpretRefFunctionCall(expression, environment) {
       }
 
       try {
-        return func(refValue, code1);
+        return toInt32(func(refValue, code1));
       } catch (e) {
         if (e instanceof Error) {
           e.message += ` (caused while evaluating single-qualifier reference function "${functionName})"`;
@@ -277,7 +281,7 @@ function interpretRefFunctionCall(expression, environment) {
       }
 
       try {
-        return func(refValue, code1, code2);
+        return toInt32(func(refValue, code1, code2));
       } catch (e) {
         if (e instanceof Error) {
           e.message += ` (caused while evaluating double-qualifier reference function "${functionName})"`;

@@ -13,8 +13,10 @@ import tokenize, {
   ReferenceToken,
 } from "../src/lexer.js";
 import { D2FSyntaxError } from "../src/errors.js";
+import { isInt32 } from "../src/int32.js";
 
 /**
+ * @typedef {import("../src/int32.js").Int32} Int32
  * @typedef {import("../src/lexer.js").Token} Token
  */
 
@@ -43,6 +45,19 @@ function itFailsTokenizeWith(code, expectedError) {
   });
 }
 
+/**
+ * Helper method that creates a NumberToken object from a number.
+ *
+ * @param {number} position Position of the token in the original string
+ * @param {string} rawValue Raw text of the token
+ * @param {number} number
+ * @return {NumberToken}
+ */
+function makeNumberToken(position, rawValue, number) {
+  assert.ok(isInt32(number), `Invalid test input: ${number} is not Int32`);
+  return new NumberToken(position, rawValue, number);
+}
+
 describe("tokenize()", () => {
   describe("should tokenize empty string to nothing", () => {
     itTokenizesTo("", []);
@@ -54,28 +69,28 @@ describe("tokenize()", () => {
   });
 
   describe("should tokenize numbers", () => {
-    itTokenizesTo("0", [new NumberToken(0, "0", 0)]);
-    itTokenizesTo("369", [new NumberToken(0, "369", 369)]);
+    itTokenizesTo("0", [makeNumberToken(0, "0", 0)]);
+    itTokenizesTo("369", [makeNumberToken(0, "369", 369)]);
   });
 
   describe("should tokenize long numbers", () => {
     // INT32_MAX
-    itTokenizesTo("2147483647", [new NumberToken(0, "2147483647", 2147483647)]);
+    itTokenizesTo("2147483647", [makeNumberToken(0, "2147483647", 2147483647)]);
     // INT32_MAX + 1
     itTokenizesTo("2147483648", [
-      new NumberToken(0, "2147483648", -2147483648),
+      makeNumberToken(0, "2147483648", -2147483648),
     ]);
     // UINT32_MAX
-    itTokenizesTo("4294967295", [new NumberToken(0, "4294967295", -1)]);
+    itTokenizesTo("4294967295", [makeNumberToken(0, "4294967295", -1)]);
     // UINT32_MAX + 1
-    itTokenizesTo("4294967296", [new NumberToken(0, "4294967296", 0)]);
+    itTokenizesTo("4294967296", [makeNumberToken(0, "4294967296", 0)]);
     // Other large numbers
-    itTokenizesTo("9876543210", [new NumberToken(0, "9876543210", 1286608618)]);
+    itTokenizesTo("9876543210", [makeNumberToken(0, "9876543210", 1286608618)]);
     itTokenizesTo("12345678901234567890", [
-      new NumberToken(0, "12345678901234567890", -350287150),
+      makeNumberToken(0, "12345678901234567890", -350287150),
     ]);
     itTokenizesTo("98765432109876543210", [
-      new NumberToken(0, "98765432109876543210", -450461974),
+      makeNumberToken(0, "98765432109876543210", -450461974),
     ]);
   });
 
@@ -123,7 +138,7 @@ describe("tokenize()", () => {
   });
 
   describe("should ignore whitespace around tokens", () => {
-    itTokenizesTo(" 1 ", [new NumberToken(1, "1", 1)]);
+    itTokenizesTo(" 1 ", [makeNumberToken(1, "1", 1)]);
     itTokenizesTo("  +    ", [new OperatorToken(2, "+")]);
     itTokenizesTo("  ==  ", [new OperatorToken(2, "==")]);
     itTokenizesTo("  (  )  ", [
@@ -133,13 +148,13 @@ describe("tokenize()", () => {
     itTokenizesTo(" lvl > 2 ? lvl + 3 : 0 ", [
       new IdentifierToken(1, "lvl"),
       new OperatorToken(5, ">"),
-      new NumberToken(7, "2", 2),
+      makeNumberToken(7, "2", 2),
       new QuestionMarkToken(9),
       new IdentifierToken(11, "lvl"),
       new OperatorToken(15, "+"),
-      new NumberToken(17, "3", 3),
+      makeNumberToken(17, "3", 3),
       new ColonToken(19),
-      new NumberToken(21, "0", 0),
+      makeNumberToken(21, "0", 0),
     ]);
   });
 
