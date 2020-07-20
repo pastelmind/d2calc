@@ -58,6 +58,27 @@ describe("tokenize()", () => {
     itTokenizesTo("369", [new NumberToken(0, "369", 369)]);
   });
 
+  describe("should tokenize long numbers", () => {
+    // INT32_MAX
+    itTokenizesTo("2147483647", [new NumberToken(0, "2147483647", 2147483647)]);
+    // INT32_MAX + 1
+    itTokenizesTo("2147483648", [
+      new NumberToken(0, "2147483648", -2147483648),
+    ]);
+    // UINT32_MAX
+    itTokenizesTo("4294967295", [new NumberToken(0, "4294967295", -1)]);
+    // UINT32_MAX + 1
+    itTokenizesTo("4294967296", [new NumberToken(0, "4294967296", 0)]);
+    // Other large numbers
+    itTokenizesTo("9876543210", [new NumberToken(0, "9876543210", 1286608618)]);
+    itTokenizesTo("12345678901234567890", [
+      new NumberToken(0, "12345678901234567890", -350287150),
+    ]);
+    itTokenizesTo("98765432109876543210", [
+      new NumberToken(0, "98765432109876543210", -450461974),
+    ]);
+  });
+
   describe("should tokenize operators", () => {
     itTokenizesTo("+", [new OperatorToken(0, "+")]);
     itTokenizesTo("-", [new OperatorToken(0, "-")]);
