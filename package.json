@@ -39,6 +39,7 @@
   "devDependencies": {
     "@types/mocha": "^8.0.0",
     "@types/node": "^12.12.50",
+    "@types/sinon": "^9.0.4",
     "eslint": "^7.4.0",
     "mocha": "^8.0.1",
     "rollup": "^2.22.0",
