@@ -22,3 +22,23 @@ export function parseInt32(num) {
   }
   return /** @type {Int32} */ (value | 0);
 }
+
+/**
+ * Converts a number to an Int32 value.
+ *
+ * @param {number} num
+ * @return {Int32}
+ */
+export function toInt32(num) {
+  return /** @type {Int32} */ (num | 0);
+}
+
+/**
+ * Checks if the given number is a signed 32-bit integer.
+ *
+ * @param {number} value
+ * @return {value is Int32}
+ */
+export function isInt32(value) {
+  return value === toInt32(value);
+}
