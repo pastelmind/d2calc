@@ -1,9 +1,13 @@
 import { strict as assert } from "assert";
+import sinon from "sinon";
 
 import interpret from "../src/interpreter.js";
 
 /**
  * @typedef {import("../src/interpreter.js").InterpreterEnvironment} InterpreterEnvironment
+ * @typedef {import("../src/interpreter.js").NumericFunction} NumericFunction
+ * @typedef {import("../src/interpreter.js").ReferenceFunction} ReferenceFunction
+ * @typedef {import("../src/interpreter.js").ReferenceFunction2Q} ReferenceFunction2Q
  */
 
 /**
@@ -26,22 +30,22 @@ describe("interpret()", () => {
     itInterpretsTo("125", {}, 125);
   });
 
-  describe("should interpret identifiers correctly", () => {
+  it("should interpret identifiers correctly", () => {
+    const funcvar = sinon.fake.returns(138);
+
     /** @type {InterpreterEnvironment} */
     const environment = {
       identifiers: {
         numvar: 47,
-        funcvar: () => 138,
+        funcvar,
       },
     };
 
-    describe("if identifiers are given as numbers", () => {
-      itInterpretsTo("numvar", environment, 47);
-    });
+    assert.deepStrictEqual(interpret("numvar", environment), 47);
+    sinon.assert.notCalled(funcvar);
 
-    describe("if identifiers are given as functions", () => {
-      itInterpretsTo("funcvar", environment, 138);
-    });
+    assert.deepStrictEqual(interpret("funcvar", environment), 138);
+    sinon.assert.calledOnceWithExactly(funcvar);
   });
 
   describe("should interpret arithmetic operators correctly", () => {
@@ -98,65 +102,85 @@ describe("interpret()", () => {
     itInterpretsTo("0 ? 999 : 123", {}, 123);
   });
 
-  describe("should interpret function calls correctly", () => {
+  it("should interpret function calls correctly", () => {
+    const min = sinon.fake(
+      /** @type {NumericFunction} */
+      (a, b) => (a >= 0 && b >= 0 ? Math.min(a, b) : 0)
+    );
+    const max = sinon.fake(
+      /** @type {NumericFunction} */
+      (a, b) => (a >= 0 && b >= 0 ? Math.max(a, b) : 0)
+    );
     /** @type {InterpreterEnvironment} */
     const environment = {
       functions: {
-        min(a, b) {
-          return a >= 0 && b >= 0 ? Math.min(a, b) : 0;
-        },
-        max(a, b) {
-          return a >= 0 && b >= 0 ? Math.max(a, b) : 0;
-        },
+        min,
+        max,
       },
     };
 
-    itInterpretsTo("max(5, 10)", environment, 10);
-    itInterpretsTo("max(100, 3)", environment, 100);
-    itInterpretsTo("max(-1, 10)", environment, 0);
-    itInterpretsTo("max(5, -10)", environment, 0);
+    assert.deepStrictEqual(interpret("max(5, 10)", environment), 10);
+    sinon.assert.calledWithExactly(max.getCall(0), 5, 10);
+    assert.deepStrictEqual(interpret("max(100, 3)", environment), 100);
+    sinon.assert.calledWithExactly(max.getCall(1), 100, 3);
+    assert.deepStrictEqual(interpret("max(-1, 10)", environment), 0);
+    sinon.assert.calledWithExactly(max.getCall(2), -1, 10);
+    assert.deepStrictEqual(interpret("max(5, -10)", environment), 0);
+    sinon.assert.calledWithExactly(max.getCall(3), 5, -10);
 
-    itInterpretsTo("min(5, 10)", environment, 5);
-    itInterpretsTo("min(100, 3)", environment, 3);
-    itInterpretsTo("min(-1, 10)", environment, 0);
-    itInterpretsTo("min(5, -10)", environment, 0);
+    sinon.assert.notCalled(min);
+    sinon.assert.callCount(max, 4);
+
+    min.resetHistory();
+    max.resetHistory();
+
+    assert.deepStrictEqual(interpret("min(5, 10)", environment), 5);
+    assert.deepStrictEqual(interpret("min(100, 3)", environment), 3);
+    assert.deepStrictEqual(interpret("min(-1, 10)", environment), 0);
+    assert.deepStrictEqual(interpret("min(5, -10)", environment), 0);
+
+    sinon.assert.notCalled(max);
+    sinon.assert.callCount(min, 4);
+    sinon.assert.calledWithExactly(min.getCall(0), 5, 10);
+    sinon.assert.calledWithExactly(min.getCall(1), 100, 3);
+    sinon.assert.calledWithExactly(min.getCall(2), -1, 10);
+    sinon.assert.calledWithExactly(min.getCall(3), 5, -10);
   });
 
-  describe("should interpret reference function calls correctly", () => {
+  it("should interpret reference function calls correctly", () => {
+    const ref1 = sinon.fake.returns(125);
+    const ref2 = sinon.fake.returns(500);
+    const ref1_2q = sinon.fake.returns(-10);
+    const ref2_2q = sinon.fake.returns(-100);
+
     /** @type {InterpreterEnvironment} */
     const environment = {
       referenceFunctions: {
-        ref1(reference, code) {
-          assert.deepStrictEqual(reference, "foo");
-          assert.deepStrictEqual(code, "bar");
-          return 125;
-        },
-        ref2(reference, code) {
-          assert.deepStrictEqual(reference, 250);
-          assert.deepStrictEqual(code, "key");
-          return 500;
-        },
+        ref1,
+        ref2,
       },
       referenceFunctions2Q: {
-        ref1(reference, code1, code2) {
-          assert.deepStrictEqual(reference, "foo");
-          assert.deepStrictEqual(code1, "bar");
-          assert.deepStrictEqual(code2, "baz");
-          return -10;
-        },
-        ref2(reference, code1, code2) {
-          assert.deepStrictEqual(reference, 4);
-          assert.deepStrictEqual(code1, "don");
-          assert.deepStrictEqual(code2, "key");
-          return -100;
-        },
+        ref1: ref1_2q,
+        ref2: ref2_2q,
       },
     };
 
-    itInterpretsTo("ref1('foo'.bar)", environment, 125);
-    itInterpretsTo("ref2((100 + 150).key)", environment, 500);
+    assert.deepStrictEqual(interpret("ref1('foo'.bar)", environment), 125);
+    assert.deepStrictEqual(
+      interpret("ref2((100 + 150).key)", environment),
+      500
+    );
+    assert.deepStrictEqual(interpret("ref1('foo'.bar.baz)", environment), -10);
+    assert.deepStrictEqual(interpret("ref2(4.don.key)", environment), -100);
 
-    itInterpretsTo("ref1('foo'.bar.baz)", environment, -10);
-    itInterpretsTo("ref2(4.don.key)", environment, -100);
+    sinon.assert.calledOnceWithExactly(ref1, "foo", "bar");
+    sinon.assert.calledOnceWithExactly(ref2, 250, "key");
+    sinon.assert.calledOnceWithExactly(ref1_2q, "foo", "bar", "baz");
+    sinon.assert.calledOnceWithExactly(ref2_2q, 4, "don", "key");
   });
+});
+
+afterEach(() => {
+  // Restore the default sandbox
+  sinon.restore();
 });
