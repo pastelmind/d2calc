@@ -1,5 +1,7 @@
 # d2calc
 
+![npm](https://img.shields.io/npm/v/d2calc)
+
 d2calc is an interpreter for the mini-language used internally by [Diablo 2].
 
 Diablo 2 uses text files containing [tab-separated values] to store game data.
