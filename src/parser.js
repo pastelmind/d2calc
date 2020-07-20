@@ -13,6 +13,7 @@ import tokenize, {
 import { D2CalcInternalError, D2FSyntaxError } from "./errors.js";
 
 /**
+ * @typedef {import("./int32.js").Int32} Int32
  * @typedef {import("./lexer.js").Token} Token
  */
 
@@ -459,7 +460,7 @@ export class AstIntegralExpression {}
 
 export class AstNumber extends AstIntegralExpression {
   /**
-   * @param {number} value Must be a nonnegative number
+   * @param {Int32} value Must be a nonnegative number
    */
   constructor(value) {
     super();
