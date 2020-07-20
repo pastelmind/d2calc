@@ -1,4 +1,5 @@
 import { D2FSyntaxError } from "./errors.js";
+import { parseInt32 } from "./int32.js";
 
 /**
  * Tokenizes the given string.
@@ -70,7 +71,7 @@ function matchTokenAt(text, index) {
   }
   // Number
   if ((matchedStr = matchRegexAt(text, index, /\d+\b/y)) !== null) {
-    return new NumberToken(index, matchedStr, parseInt(matchedStr));
+    return new NumberToken(index, matchedStr, parseInt32(matchedStr));
   }
   // Identifier
   if ((matchedStr = matchIdentifier(text, index)) !== null) {
