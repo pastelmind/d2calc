@@ -1,11 +1,22 @@
 import { terser } from "rollup-plugin-terser";
 import pkg from "./package.json";
 
+const banner = `
+/**
+ * ${pkg.description}
+ * @module ${pkg.name}
+ * @version ${pkg.version}
+ * @author ${pkg.author}
+ * @license ${pkg.license}
+ */
+`;
+
 /**
  * Shared options for all output bundles
  * @type {import("rollup").OutputOptions}
  */
 const outputOptionsBase = {
+  banner,
   name: pkg.name, // For UMD bundles
   plugins: [
     terser({
