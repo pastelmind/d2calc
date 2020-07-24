@@ -11,7 +11,7 @@
   },
   "types": "./dist/index.d.ts",
   "scripts": {
-    "build": "rollup --config && tsc",
+    "build": "rollup --config && tsc -p tsconfig.build.json",
     "clean": "rm -rf ./dist/*",
     "lint": "eslint . && tsc -p jsconfig.json",
     "prepare": "npm run build",
