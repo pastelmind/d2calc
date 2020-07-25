@@ -17,10 +17,10 @@ import parse from "./parser.js";
 export class CachedInterpreter {
   constructor() {
     /**
-     * @type {{ [text: string]: AstExpression }}
+     * @type {Map<string, AstExpression>}
      * @private
      */
-    this.astCache_ = {};
+    this.astCache_ = new Map();
   }
 
   /**
@@ -39,9 +39,9 @@ export class CachedInterpreter {
    *    error occurs while interpreting the result
    */
   interpret(text, environment = {}) {
-    let expression = this.astCache_[text];
+    let expression = this.astCache_.get(text);
     if (!expression) {
-      expression = this.astCache_[text] = parse(text);
+      this.astCache_.set(text, (expression = parse(text)));
     }
     return interpretExpression(expression, environment);
   }
