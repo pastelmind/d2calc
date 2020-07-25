@@ -29,13 +29,17 @@ export function parseInt32(num) {
 }
 
 /**
- * Converts a number to an Int32 value.
+ * Converts any value to a 32-bit signed integer.
+ * If the value is not a number, it is converted to a number first. Then it is
+ * truncated to a 32-bit signed integer.
  *
- * @param {number} num
+ * @param {*} value Value to convert
  * @return {Int32}
+ * @throws {TypeError} If the value cannot be converted to a number, i.e. is a
+ *    `BigInt` or `Symbol`.
  */
-export function toInt32(num) {
-  return /** @type {Int32} */ (num | 0);
+export function toInt32(value) {
+  return /** @type {Int32} */ (value | 0);
 }
 
 /**
