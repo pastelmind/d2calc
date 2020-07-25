@@ -1,6 +1,7 @@
 import { strict as assert } from "assert";
 import sinon from "sinon";
 
+import { D2FInterpreterError } from "../src/errors.js";
 import interpret from "../src/interpreter.js";
 
 /**
@@ -203,6 +204,76 @@ describe("interpret()", () => {
     itInterpretsTo("-2147483648", {}, -2147483648);
     itInterpretsTo("2147483648 * -1", {}, -2147483648);
     itInterpretsTo("-1 * 2147483648", {}, -2147483648);
+  });
+
+  it("should not treat Object.prototype builtins as identifiers", () => {
+    assert.throws(
+      () => interpret("hasOwnProperty"),
+      new D2FInterpreterError(`Unknown identifier: hasOwnProperty`)
+    );
+    assert.throws(
+      () => interpret("toString"),
+      new D2FInterpreterError(`Unknown identifier: toString`)
+    );
+    assert.throws(
+      () => interpret("valueOf"),
+      new D2FInterpreterError(`Unknown identifier: valueOf`)
+    );
+  });
+
+  it("should not treat Object.prototype builtins as numeric functions", () => {
+    assert.throws(
+      () => interpret("hasOwnProperty(1, 2)"),
+      new D2FInterpreterError(`Unknown function: hasOwnProperty`)
+    );
+    assert.throws(
+      () => interpret("toString(1, 2)"),
+      new D2FInterpreterError(`Unknown function: toString`)
+    );
+    assert.throws(
+      () => interpret("valueOf(1, 2)"),
+      new D2FInterpreterError(`Unknown function: valueOf`)
+    );
+  });
+
+  it("should not treat Object.prototype builtins as reference functions", () => {
+    assert.throws(
+      () => interpret("hasOwnProperty('foo'.qualifier)"),
+      new D2FInterpreterError(
+        `Unknown single-qualifier reference function: hasOwnProperty`
+      )
+    );
+    assert.throws(
+      () => interpret("toString('foo'.qualifier)"),
+      new D2FInterpreterError(
+        `Unknown single-qualifier reference function: toString`
+      )
+    );
+    assert.throws(
+      () => interpret("valueOf('foo'.qualifier)"),
+      new D2FInterpreterError(
+        `Unknown single-qualifier reference function: valueOf`
+      )
+    );
+
+    assert.throws(
+      () => interpret("hasOwnProperty('foo'.qual1.qual2)"),
+      new D2FInterpreterError(
+        `Unknown double-qualifier reference function: hasOwnProperty`
+      )
+    );
+    assert.throws(
+      () => interpret("toString('foo'.qual1.qual2)"),
+      new D2FInterpreterError(
+        `Unknown double-qualifier reference function: toString`
+      )
+    );
+    assert.throws(
+      () => interpret("valueOf('foo'.qual1.qual2)"),
+      new D2FInterpreterError(
+        `Unknown double-qualifier reference function: valueOf`
+      )
+    );
   });
 });
 

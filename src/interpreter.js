@@ -186,7 +186,9 @@ function interpretBinaryOp(expression, environment) {
 function interpretFunctionCall(expression, environment) {
   const { functionName, arg1, arg2 } = expression;
   const { functions = {} } = environment;
-  const func = functions[functionName];
+  const func = Object.prototype.hasOwnProperty.call(functions, functionName)
+    ? functions[functionName]
+    : undefined;
 
   if (func == undefined) {
     throw new D2FInterpreterError(`Unknown function: ${functionName}`);
@@ -212,7 +214,12 @@ function interpretFunctionCall(expression, environment) {
  */
 function interpretIdentifier(expression, environment) {
   const { identifiers = {} } = environment;
-  const identifier = identifiers[expression.name];
+  const identifier = Object.prototype.hasOwnProperty.call(
+    identifiers,
+    expression.name
+  )
+    ? identifiers[expression.name]
+    : undefined;
 
   if (identifier == undefined) {
     throw new D2FInterpreterError(`Unknown identifier: ${expression.name}`);
@@ -240,7 +247,12 @@ function interpretRefFunctionCall(expression, environment) {
 
   if (code2 == null) {
     const { referenceFunctions = {} } = environment;
-    const func = referenceFunctions[functionName];
+    const func = Object.prototype.hasOwnProperty.call(
+      referenceFunctions,
+      functionName
+    )
+      ? referenceFunctions[functionName]
+      : undefined;
 
     if (func == undefined) {
       throw new D2FInterpreterError(
@@ -266,7 +278,12 @@ function interpretRefFunctionCall(expression, environment) {
     }
   } else {
     const { referenceFunctions2Q = {} } = environment;
-    const func = referenceFunctions2Q[functionName];
+    const func = Object.prototype.hasOwnProperty.call(
+      referenceFunctions2Q,
+      functionName
+    )
+      ? referenceFunctions2Q[functionName]
+      : undefined;
 
     if (func == undefined) {
       throw new D2FInterpreterError(
