@@ -5,6 +5,24 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Fixed
+- `interpret()` now only uses identifiers, numeric functions, and reference
+  functions that are *directly-owned* properties of fields in the `environment`
+  object. For example, the following no longer works:
+
+  ```js
+  class Parent {
+    myfunc(a, b) { /* ... */ }
+  }
+  class Child extends Parent {}
+
+  // Previously, interpret() used Child.myfunc(), inherited from Parent.
+  // With this change, it now throws a "Unknown function" D2FInterpreterError.
+  interpret("myfunc(10, 20)", { functions: new Child() });
+  ```
+
+  This prevents inherited properties (such as those in `Object.prototype`) from
+  accidentally leaking into the environment.
 
 ## [0.1.1] - 2020-07-21
 ### Fixed
