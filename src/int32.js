@@ -43,11 +43,21 @@ export function toInt32(value) {
 }
 
 /**
- * Checks if the given number is a signed 32-bit integer.
+ * Checks if the given value is a 32-bit signed integer.
  *
- * @param {number} value
+ * Note: This returns `false` for `BigInt` values.
+ *
+ * @param {*} value
  * @return {value is Int32}
  */
 export function isInt32(value) {
-  return value === toInt32(value);
+  try {
+    return value === toInt32(value);
+  } catch (e) {
+    // value cannot be converted to a number
+    if (e instanceof TypeError) {
+      return false;
+    }
+    throw e;
+  }
 }
