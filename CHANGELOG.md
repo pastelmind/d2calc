@@ -23,6 +23,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
   This prevents inherited properties (such as those in `Object.prototype`) from
   accidentally leaking into the environment.
+- Fixed a bug that caused `CachedInterpreter.interpret()` to behave incorrectly
+  when property names in `Object.prototype` were given as formulae.
 
 ## [0.1.1] - 2020-07-21
 ### Fixed
