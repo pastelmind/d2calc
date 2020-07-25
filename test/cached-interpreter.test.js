@@ -9,19 +9,19 @@ describe("CachedInterpreter", () => {
     // @ts-expect-error Accessing private property for test
     const astCache = interpreter.astCache_;
 
-    assert.strictEqual(0, Object.keys(astCache).length);
+    assert.strictEqual(0, astCache.size);
 
     const formula1 = "2 + 5";
     const formula2 = "((12 + 34) / -5 < 100) ? 67 : 89";
 
     interpreter.interpret(formula1);
-    assert.strictEqual(1, Object.keys(astCache).length);
-    assert.ok(Object.prototype.hasOwnProperty.call(astCache, formula1));
-    const ast1Before = astCache[formula1];
+    assert.strictEqual(1, astCache.size);
+    assert.ok(astCache.has(formula1));
+    const ast1Before = astCache.get(formula1);
 
     interpreter.interpret(formula1);
-    assert.strictEqual(1, Object.keys(astCache).length);
-    const ast1After = astCache[formula1];
+    assert.strictEqual(1, astCache.size);
+    const ast1After = astCache.get(formula1);
 
     assert.strictEqual(
       ast1Before,
@@ -30,13 +30,13 @@ describe("CachedInterpreter", () => {
     );
 
     interpreter.interpret(formula2);
-    assert.strictEqual(2, Object.keys(astCache).length);
-    assert.ok(Object.prototype.hasOwnProperty.call(astCache, formula2));
-    const ast2Before = astCache[formula2];
+    assert.strictEqual(2, astCache.size);
+    assert.ok(astCache.has(formula2));
+    const ast2Before = astCache.get(formula2);
 
     interpreter.interpret(formula2);
-    assert.strictEqual(2, Object.keys(astCache).length);
-    const ast2After = astCache[formula2];
+    assert.strictEqual(2, astCache.size);
+    const ast2After = astCache.get(formula2);
 
     assert.strictEqual(
       ast2Before,
@@ -54,7 +54,7 @@ describe("CachedInterpreter", () => {
       () => interpreter.interpret("min(2, 3)"),
       D2FInterpreterError
     );
-    assert.strictEqual(1, Object.keys(astCache).length);
+    assert.strictEqual(1, astCache.size);
   });
 
   it("should not cache syntactically invalid formula", () => {
@@ -63,7 +63,7 @@ describe("CachedInterpreter", () => {
     const astCache = interpreter.astCache_;
 
     assert.throws(() => interpreter.interpret("max(2, )"), D2FSyntaxError);
-    assert.strictEqual(0, Object.keys(astCache).length);
+    assert.strictEqual(0, astCache.size);
   });
 
   it("should not treat Object.prototype builtins as formulae", () => {
@@ -78,6 +78,6 @@ describe("CachedInterpreter", () => {
     );
     assert.throws(() => interpreter.interpret("toString"), D2FInterpreterError);
     assert.throws(() => interpreter.interpret("valueOf"), D2FInterpreterError);
-    assert.strictEqual(3, Object.keys(astCache).length);
+    assert.strictEqual(3, astCache.size);
   });
 });
