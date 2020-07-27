@@ -1,6 +1,11 @@
 /**
+ * @template T, B
+ * @typedef {import("./types.js").Nominal<T, B>} Nominal
+ */
+
+/**
  * Nominal type for 32-bit signed integer
- * @typedef {number & { __int32Brand: never }} Int32
+ * @typedef {Nominal<number, "Int32">} Int32
  */
 
 /**
