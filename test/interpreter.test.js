@@ -1,4 +1,5 @@
 import { strict as assert } from "assert";
+
 import sinon from "sinon";
 
 import { D2FInterpreterError } from "../src/errors.js";

@@ -1,3 +1,4 @@
+import { D2CalcInternalError, D2FSyntaxError } from "./errors.js";
 import tokenize, {
   ClosingParenthesisToken,
   ColonToken,
@@ -10,7 +11,6 @@ import tokenize, {
   QuestionMarkToken,
   ReferenceToken,
 } from "./lexer.js";
-import { D2CalcInternalError, D2FSyntaxError } from "./errors.js";
 
 /**
  * @typedef {import("./int32.js").Int32} Int32

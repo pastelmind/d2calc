@@ -1,5 +1,7 @@
 import { strict as assert } from "assert";
 
+import { D2FSyntaxError } from "../src/errors.js";
+import { isInt32 } from "../src/int32.js";
 import tokenize, {
   ClosingParenthesisToken,
   ColonToken,
@@ -12,8 +14,6 @@ import tokenize, {
   QuestionMarkToken,
   ReferenceToken,
 } from "../src/lexer.js";
-import { D2FSyntaxError } from "../src/errors.js";
-import { isInt32 } from "../src/int32.js";
 
 /**
  * @typedef {import("../src/int32.js").Int32} Int32
