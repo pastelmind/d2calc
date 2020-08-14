@@ -1,6 +1,6 @@
-import parse from "./parser.js";
 import { D2CalcInternalError, D2FInterpreterError } from "./errors.js";
 import { toInt32 } from "./int32.js";
+import parse from "./parser.js";
 
 /**
  * @typedef {import("./errors.js").D2FSyntaxError} D2FSyntaxError

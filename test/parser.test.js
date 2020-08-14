@@ -1,5 +1,7 @@
 import { strict as assert } from "assert";
 
+import { D2FSyntaxError } from "../src/errors.js";
+import { isInt32 } from "../src/int32.js";
 import parse, {
   AstBinaryOp,
   AstConditional,
@@ -9,8 +11,6 @@ import parse, {
   AstRefFunctionCall,
   AstUnaryOp,
 } from "../src/parser.js";
-import { D2FSyntaxError } from "../src/errors.js";
-import { isInt32 } from "../src/int32.js";
 
 /**
  * @typedef {import("../src/int32.js").Int32} Int32
