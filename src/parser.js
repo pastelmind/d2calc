@@ -12,6 +12,7 @@ import {
   ReferenceToken,
   tokenize,
 } from "./lexer.js";
+import { _c } from "./types.js";
 
 /**
  * @typedef {import("./int32.js").Int32} Int32
@@ -416,8 +417,7 @@ export class AstBinaryOp {
    * @param {AstExpression} right Right side expression
    */
   constructor(operator, left, right) {
-    /** @type {"AstBinaryOp"} */
-    this.type = "AstBinaryOp";
+    this.type = _c("AstBinaryOp");
     this.operator = operator;
     this.left = left;
     this.right = right;
@@ -430,8 +430,7 @@ export class AstUnaryOp {
    * @param {AstExpression} expression Expression to apply the operator
    */
   constructor(operator, expression) {
-    /** @type {"AstUnaryOp"} */
-    this.type = "AstUnaryOp";
+    this.type = _c("AstUnaryOp");
     this.operator = operator;
     this.expression = expression;
   }
@@ -444,8 +443,7 @@ export class AstConditional {
    * @param {AstExpression} falseExpression Expression to evaluate if condition is false (zero)
    */
   constructor(condition, trueExpression, falseExpression) {
-    /** @type {"AstConditional"} */
-    this.type = "AstConditional";
+    this.type = _c("AstConditional");
     this.condition = condition;
     this.trueExpression = trueExpression;
     this.falseExpression = falseExpression;
@@ -465,8 +463,7 @@ export class AstNumber extends AstIntegralExpression {
    */
   constructor(value) {
     super();
-    /** @type {"AstNumber"} */
-    this.type = "AstNumber";
+    this.type = _c("AstNumber");
     this.value = value;
   }
 }
@@ -477,8 +474,7 @@ export class AstIdentifier extends AstIntegralExpression {
    */
   constructor(name) {
     super();
-    /** @type {"AstIdentifier"} */
-    this.type = "AstIdentifier";
+    this.type = _c("AstIdentifier");
     this.name = name;
   }
 }
@@ -491,8 +487,7 @@ export class AstFunctionCall extends AstIntegralExpression {
    */
   constructor(functionName, arg1, arg2) {
     super();
-    /** @type {"AstFunctionCall"} */
-    this.type = "AstFunctionCall";
+    this.type = _c("AstFunctionCall");
     this.functionName = functionName;
     this.arg1 = arg1;
     this.arg2 = arg2;
@@ -508,8 +503,7 @@ export class AstRefFunctionCall extends AstIntegralExpression {
    */
   constructor(functionName, reference, code1, code2) {
     super();
-    /** @type {"AstRefFunctionCall"} */
-    this.type = "AstRefFunctionCall";
+    this.type = _c("AstRefFunctionCall");
     this.functionName = functionName;
     this.reference = reference;
     this.code1 = code1;
