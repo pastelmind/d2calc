@@ -1,6 +1,6 @@
 # d2calc
 
-![npm](https://img.shields.io/npm/v/d2calc)
+[![npm](https://img.shields.io/npm/v/d2calc)](https://www.npmjs.com/package/d2calc)
 
 d2calc is an interpreter for the mini-language used internally by [Diablo 2].
 
