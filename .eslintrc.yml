@@ -19,9 +19,9 @@ rules:
   import/extensions:
     - warn
     - ignorePackages
+  import/newline-after-import: warn
   import/order:
     - warn
     - newlines-between: always
       alphabetize:
         order: asc
-  import/newline-after-import: warn
