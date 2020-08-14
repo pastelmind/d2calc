@@ -24,14 +24,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   ```
 
   This prevents inherited properties (such as those in `Object.prototype`) from
-  accidentally leaking into the environment.
+  accidentally leaking into the environment. (#3)
 - Fixed a bug that caused `CachedInterpreter.interpret()` to behave incorrectly
-  when property names in `Object.prototype` were given as formulae.
+  when property names in `Object.prototype` were given as formulae. (#4)
 
 ### Security
 - Bumped development dependencies (Mocha, rollup-plugin-terser) to handle known
   vulnerability in serialize-javascript. This will not affect users of this
-  library.
+  library. (#5)
 
 ## [0.1.1] - 2020-07-21
 ### Fixed
