@@ -4,10 +4,21 @@ env:
   node: true
 extends:
   - "eslint:recommended"
+  # "plugin:import/errors" is unneeded because TypeScript already covers them
+  - "plugin:import/warnings"
   - "plugin:prettier/recommended"
 ignorePatterns:
   - "dist/*"
 parserOptions:
   ecmaVersion: 6
   sourceType: module
-rules: {}
+rules:
+  import/extensions:
+    - warn
+    - ignorePackages
+  import/order:
+    - warn
+    - newlines-between: always
+      alphabetize:
+        order: asc
+  import/newline-after-import: warn
