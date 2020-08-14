@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [0.2.0] - 2020-08-14
 ### Fixed
 - `interpret()` now only uses identifiers, numeric functions, and reference
   functions that are *directly-owned* properties of fields in the `environment`
@@ -25,6 +27,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   accidentally leaking into the environment.
 - Fixed a bug that caused `CachedInterpreter.interpret()` to behave incorrectly
   when property names in `Object.prototype` were given as formulae.
+
+### Security
+- Bumped development dependencies (Mocha, rollup-plugin-terser) to handle known
+  vulnerability in serialize-javascript. This will not affect users of this
+  library.
 
 ## [0.1.1] - 2020-07-21
 ### Fixed
@@ -50,7 +57,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial release
 
-[Unreleased]: https://github.com/pastelmind/d2calc/compare/v0.1.1...HEAD
+[Unreleased]: https://github.com/pastelmind/d2calc/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/pastelmind/d2calc/compare/v0.1.1...v0.2.0
 [0.1.1]: https://github.com/pastelmind/d2calc/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/pastelmind/d2calc/compare/v0.0.1...v0.1.0
 [0.0.1]: https://github.com/pastelmind/d2calc/releases/tag/v0.0.1
