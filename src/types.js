@@ -12,5 +12,12 @@
  * @typedef {T & Branded<B>} Nominal
  */
 
-// Dummy export to make TypeScript treat this file as a module.
-export {};
+/**
+ * Helper function for creating number and string literal types.
+ * @template {number | string} T
+ * @param {T} value
+ * @return {T}
+ */
+export function _c(value) {
+  return value;
+}
