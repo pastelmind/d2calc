@@ -19,6 +19,7 @@ rules:
   import/extensions:
     - warn
     - ignorePackages
+  import/first: warn
   import/newline-after-import: warn
   import/order:
     - warn
