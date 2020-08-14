@@ -13,4 +13,4 @@
  */
 
 // Dummy export to make TypeScript treat this file as a module.
-export default undefined;
+export {};
