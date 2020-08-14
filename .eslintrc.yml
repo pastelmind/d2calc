@@ -13,6 +13,9 @@ parserOptions:
   ecmaVersion: 6
   sourceType: module
 rules:
+  sort-imports:
+    - warn
+    - ignoreDeclarationSort: true
   import/extensions:
     - warn
     - ignorePackages
