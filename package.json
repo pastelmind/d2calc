@@ -37,14 +37,14 @@
     "src/"
   ],
   "devDependencies": {
-    "@types/mocha": "^8.0.0",
-    "@types/node": "^12.12.50",
+    "@types/mocha": "^8.0.2",
+    "@types/node": "^12.12.54",
     "@types/sinon": "^9.0.4",
-    "eslint": "^7.5.0",
-    "mocha": "^8.0.1",
-    "rollup": "^2.22.1",
-    "rollup-plugin-terser": "^6.1.0",
-    "sinon": "^9.0.2",
+    "eslint": "^7.6.0",
+    "mocha": "^8.1.1",
+    "rollup": "^2.24.0",
+    "rollup-plugin-terser": "^7.0.0",
+    "sinon": "^9.0.3",
     "typescript": "^3.9.7"
   },
   "engines": {
