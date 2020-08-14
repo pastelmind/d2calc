@@ -1,6 +1,6 @@
 import { D2CalcInternalError, D2FInterpreterError } from "./errors.js";
 import { toInt32 } from "./int32.js";
-import parse from "./parser.js";
+import { parse } from "./parser.js";
 
 /**
  * @typedef {import("./errors.js").D2FSyntaxError} D2FSyntaxError
@@ -66,7 +66,7 @@ import parse from "./parser.js";
  * @throws {D2FInterpreterError} If the code is syntactically valid, but an
  *    error occurs while interpreting the result
  */
-export default function interpret(text, environment = {}) {
+export function interpret(text, environment = {}) {
   const expression = parse(text);
   return interpretExpression(expression, environment);
 }

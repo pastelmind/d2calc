@@ -11,7 +11,7 @@ import { parseInt32 } from "./int32.js";
  * @param {string} text
  * @return {Token[]}
  */
-export default function tokenize(text) {
+export function tokenize(text) {
   /** @type {Token[]} */
   const tokens = [];
 

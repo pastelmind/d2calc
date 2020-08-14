@@ -2,7 +2,7 @@ import { strict as assert } from "assert";
 
 import { D2FSyntaxError } from "../src/errors.js";
 import { isInt32 } from "../src/int32.js";
-import parse, {
+import {
   AstBinaryOp,
   AstConditional,
   AstFunctionCall,
@@ -10,6 +10,7 @@ import parse, {
   AstNumber,
   AstRefFunctionCall,
   AstUnaryOp,
+  parse,
 } from "../src/parser.js";
 
 /**

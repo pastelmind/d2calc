@@ -1,5 +1,5 @@
 import { interpretExpression } from "./interpreter.js";
-import parse from "./parser.js";
+import { parse } from "./parser.js";
 
 /**
  * @typedef {import("./errors.js").D2FInterpreterError} D2FInterpreterError

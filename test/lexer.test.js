@@ -2,7 +2,7 @@ import { strict as assert } from "assert";
 
 import { D2FSyntaxError } from "../src/errors.js";
 import { isInt32 } from "../src/int32.js";
-import tokenize, {
+import {
   ClosingParenthesisToken,
   ColonToken,
   CommaToken,
@@ -13,6 +13,7 @@ import tokenize, {
   OperatorToken,
   QuestionMarkToken,
   ReferenceToken,
+  tokenize,
 } from "../src/lexer.js";
 
 /**

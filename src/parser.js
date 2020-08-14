@@ -1,5 +1,5 @@
 import { D2CalcInternalError, D2FSyntaxError } from "./errors.js";
-import tokenize, {
+import {
   ClosingParenthesisToken,
   ColonToken,
   CommaToken,
@@ -10,6 +10,7 @@ import tokenize, {
   OperatorToken,
   QuestionMarkToken,
   ReferenceToken,
+  tokenize,
 } from "./lexer.js";
 
 /**
@@ -24,7 +25,7 @@ import tokenize, {
  * @return {AstExpression}
  * @throws {D2FSyntaxError} If the expression is malformed.
  */
-export default function parse(text) {
+export function parse(text) {
   const tokens = tokenize(text);
   const tokenStream = new TokenStream(tokens);
   const expression = parseExpression(tokenStream);

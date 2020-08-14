@@ -3,7 +3,7 @@ import { strict as assert } from "assert";
 import sinon from "sinon";
 
 import { D2FInterpreterError } from "../src/errors.js";
-import interpret from "../src/interpreter.js";
+import { interpret } from "../src/interpreter.js";
 
 /**
  * @typedef {import("../src/interpreter.js").InterpreterEnvironment} InterpreterEnvironment
