@@ -9,7 +9,7 @@ These text files contain many formulae that control how various skills operate.
 The syntax of the formulae is similar to the C language, with some differences.
 For convenience, we will refer to this language as **D2F**.
 
-[Diablo 2]: https://en.wikipedia.org/wiki/Diablo_II
+[diablo 2]: https://en.wikipedia.org/wiki/Diablo_II
 [tab-separated values]: https://en.wikipedia.org/wiki/Tab-separated_values
 
 ## Installing
@@ -26,32 +26,36 @@ npm install d2calc
 For use in web browsers, minified versions are also available in UMD and ESM
 formats. Check out the [Releases] page for details.
 
-[Releases]: https://github.com/pastelmind/d2calc/releases/
+[releases]: https://github.com/pastelmind/d2calc/releases/
 
 ## Usage
 
 d2calc exports a function named `interpret()`. It can be used like this:
 
 ```js
-const { interpret } = require('d2calc');
+const { interpret } = require("d2calc");
 const result = interpret("4 * (-2 + 25)"); // 92
 ```
 
 Or, with a custom environment object:
 
 ```js
-const { interpret } = require('d2calc');
+const { interpret } = require("d2calc");
 const environment = {
   identifiers: {
     lvl: 3,
-    ln12: () => { /* Do something here */ },
+    ln12: () => {
+      /* Do something here */
+    },
   },
   functions: {
     max: (a, b) => Math.max(a, b),
     min: (a, b) => Math.min(a, b),
   },
   referenceFunctions: {
-    stat: (ref, code) => { /* Do something here */ },
+    stat: (ref, code) => {
+      /* Do something here */
+    },
   },
 };
 
@@ -64,7 +68,7 @@ intermediate result of parsing the code. When the same code is interpreted
 later, it skips the parsing process, speeding up the result significantly.
 
 ```js
-const { CachedInterpreter } = require('d2calc');
+const { CachedInterpreter } = require("d2calc");
 const interpreter = new CachedInterpreter();
 
 const result = interpreter.interpret("-(125 + 12 * 3 - 2) / 3");
@@ -74,10 +78,10 @@ d2calc can also be imported inside ECMAScript modules:
 
 ```js
 // In Node.js >= 12.x, inside an ECMAScript module:
-import { interpret } from 'd2calc';
+import { interpret } from "d2calc";
 
 // In Node.js <= 10.x, inside an ECMAScript module:
-import d2calc from 'd2calc';
+import d2calc from "d2calc";
 const { interpret } = d2calc;
 ```
 
@@ -91,15 +95,15 @@ Interprets the `code` using the `environment` and returns the result.
 
 ##### `code`
 
-* Type: `string`
-* Required: Yes
+- Type: `string`
+- Required: Yes
 
 D2F code to interpret.
 
 ##### `environment`
 
-* Type: `object`
-* Required: No
+- Type: `object`
+- Required: No
 
 An object representing the environment to use while interpreting the code.
 
@@ -107,39 +111,39 @@ The object may contain the following fields:
 
 ##### `environment.identifiers`
 
-* Type:
+- Type:
   ```ts
   {
     [name: string]: number | () => number;
-  } 
+  }
   ```
-* Required: No
+- Required: No
 
 An object that maps each identifier name to its value. Each value can be either
 a `number`, or a function that takes no arguments and returns a `number`.
 
 ##### `environment.functions`
 
-* Type:
+- Type:
   ```ts
   {
     [name: string]: (a: number, b: number) => number;
-  } 
+  }
   ```
-* Required: No
+- Required: No
 
 An object that maps each numeric function name to a numeric function. Each
 numeric function must take two numbers as arguments and return a number.
 
 ##### `environment.referenceFunctions`
 
-* Type:
+- Type:
   ```ts
   {
     [name: string]: (ref: string | number, code: string) => number;
-  } 
+  }
   ```
-* Required: No
+- Required: No
 
 An object that maps each function name to a single-qualifier reference function.
 Each reference function must take two arguments: a reference (`string` or
@@ -147,13 +151,13 @@ Each reference function must take two arguments: a reference (`string` or
 
 ##### `environment.referenceFunctions2Q`
 
-* Type:
+- Type:
   ```ts
   {
     [name: string]: (ref: string | number, code1: string, code2: string) => number;
-  } 
+  }
   ```
-* Required: No
+- Required: No
 
 An object that maps each function name to a double-qualifier reference function.
 Each reference function must take three arguments: a reference (`string` or
@@ -180,24 +184,24 @@ d2calc throws a family of exceptions, depending on the nature of the error. Each
 exception class can be imported like this:
 
 ```js
-const { D2FSyntaxError, D2FInterpreterError } = require('d2calc');
+const { D2FSyntaxError, D2FInterpreterError } = require("d2calc");
 ```
 
 The exception hierarchy:
 
-* `D2CalcError`: Base class for all exceptions thrown by this package.
-    * `D2FError`: Base class for all exceptions caused by a D2F code error.
-        * `D2FInterpreterError`: Thrown if the code contains no syntax errors, but cannot be interpreted because it uses an identifier or function in an incorrect way.
-        * `D2FSyntaxError`: Thrown if the code contains a syntax error.
-    * `D2CalcInternalError`: Used internally for catching bugs. This exception is not intended to be catched by users.
+- `D2CalcError`: Base class for all exceptions thrown by this package.
+  - `D2FError`: Base class for all exceptions caused by a D2F code error.
+    - `D2FInterpreterError`: Thrown if the code contains no syntax errors, but cannot be interpreted because it uses an identifier or function in an incorrect way.
+    - `D2FSyntaxError`: Thrown if the code contains a syntax error.
+  - `D2CalcInternalError`: Used internally for catching bugs. This exception is not intended to be catched by users.
 
 ## D2F Language Reference
 
 This section is based on the [Formulae Guide] from the [Phrozen Keep], as well
 as [my own research](https://github.com/pastelmind/d2test/tree/test/operators).
 
-[Formulae Guide]: https://d2mods.info/forum/kb/viewarticle?a=371
-[Phrozen Keep]: https://d2mods.info/
+[formulae guide]: https://d2mods.info/forum/kb/viewarticle?a=371
+[phrozen keep]: https://d2mods.info/
 
 The mini-language used by Diablo 2 (henceforth "D2F") supports only one
 datatype: the signed 32-bit integer (i.e. DWORD).
@@ -223,20 +227,20 @@ letter = "A" | "B" | "C" | "D" | "E" | "F" | "G" | "H" | "I" | "J" | "K" | "L" |
 digit  = "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" ;
 ```
 
-An *identifier* is the name of a built-in function or a qualifier.
+An _identifier_ is the name of a built-in function or a qualifier.
 
-A *reference* is the name of a skill, missile, or stat in the text files,
+A _reference_ is the name of a skill, missile, or stat in the text files,
 surrounded by single quotes (`''`).
 
-A *dot code* is a single dot (`.`) immediately followed by a qualifier name.
+A _dot code_ is a single dot (`.`) immediately followed by a qualifier name.
 
-A *qualifier* is an identifier associated with a skill, missile, or stat.
+A _qualifier_ is an identifier associated with a skill, missile, or stat.
 Each qualifier represents a value in a text file, an in-game property, or a
 computed value.
 
-* Qualifiers for skills are defined in `SkillCalc.txt`.
-* Qualifiers for missiles are defined in `MissCalc.txt`.
-* Stats have the following built-in qualifiers: `base`, `accr`, `mod`
+- Qualifiers for skills are defined in `SkillCalc.txt`.
+- Qualifiers for missiles are defined in `MissCalc.txt`.
+- Stats have the following built-in qualifiers: `base`, `accr`, `mod`
 
 ### Expressions
 
