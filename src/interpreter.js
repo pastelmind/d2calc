@@ -113,15 +113,27 @@ export function interpretExpression(expression, environment) {
             -interpretExpression(expression.expression, environment)
           );
         default:
-          throw new D2CalcInternalError(
-            `Unknown operator: "${expression.operator}"`
-          );
+          // Exhaustiveness check
+          // Throw here to make ESLint's static analysis work
+          throw createUnhandledUnaryOperatorError(expression);
       }
     }
+    default:
+      // Exhaustiveness check
+      assertUnhandledExpressionType(expression);
   }
+}
 
-  // Exhaustiveness check
-  assertUnhandledExpressionType(expression);
+/**
+ * Helper function to assist TypeScript's exhaustiveness check.
+ *
+ * @param {never} e
+ * @return {D2CalcInternalError}
+ */
+function createUnhandledUnaryOperatorError(e) {
+  return new D2CalcInternalError(
+    `Unknown operator: "${/** @type {AstUnaryOp} */ (e).operator}"`
+  );
 }
 
 /**
