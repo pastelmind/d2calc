@@ -6,7 +6,7 @@ extends:
   - "eslint:recommended"
   # "plugin:import/errors" is unneeded because TypeScript already covers them
   - "plugin:import/warnings"
-  - "plugin:prettier/recommended"
+  - "prettier"
 ignorePatterns:
   - "dist/*"
 parserOptions:

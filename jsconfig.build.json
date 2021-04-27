@@ -8,10 +8,8 @@
     "declarationMap": true,
     "emitDeclarationOnly": true,
     "noEmit": false,
-    "outDir": "dist/",
+    "outDir": "dist/"
   },
   "extends": "./jsconfig.json",
-  "files": [
-    "index.js",
-  ],
+  "files": ["index.js"]
 }
